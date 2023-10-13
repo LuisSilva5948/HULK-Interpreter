@@ -16,13 +16,13 @@ namespace HULK_Interpreter
         public Token(TokenType type, string lexeme, string literal)
         {
             Type = type;        //tipo
-            Lexeme = lexeme;    //valor
-            Literal = literal;  //id
+            Lexeme = lexeme;    //id
+            Literal = literal;  //valor
         }
 
         public override string ToString()
         {
-            return Type + " " + Literal + " " + Lexeme;
+            return Type + " " + Lexeme + " " + Literal;
         }
     }
 }

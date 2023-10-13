@@ -6,13 +6,14 @@ namespace HULK_ConsoleInterface
     {
         static void Main(string[] args)
         {
+            Interpreter interpreter = new Interpreter();
             do
             {
                 Console.Write(">");
                 string line = Console.ReadLine().ToString();
                 if (line != null)
                 {
-                    Lexer.Tokenize(line);
+                    interpreter.Run(line);
                 }
                 else throw new Exception("No input received.");
             } while (true);
