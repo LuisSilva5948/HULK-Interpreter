@@ -6,16 +6,16 @@ namespace HULK_ConsoleInterface
     {
         static void Main(string[] args)
         {
-            for(; ;)
+            do
             {
-                Console.WriteLine(">");
+                Console.Write(">");
                 string line = Console.ReadLine().ToString();
                 if (line != null)
                 {
-                    Lexer lexer = new Lexer(line);
+                    Lexer.Tokenize(line);
                 }
                 else throw new Exception("No input received.");
-            }
+            } while (true);
         }
     }
 }
