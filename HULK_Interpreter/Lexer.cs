@@ -14,20 +14,37 @@ namespace HULK_Interpreter
             this.source = source;
         }
         
-        public List<Token> GetTokens()
+        public List<Token> ScanTokens()
         {
             while(!isAtEnd()){
                 start = current;
-                ScanToken();
+                scanToken();
             }
+            tokens.Add(new Token(TokenType.EOL,"",""));
             return tokens;
         }
-        public Token ScanToken()
-        {
-            //implementar scantoken
-            return tokens[start];
-        }
+
         public bool isAtEnd() => current >= source.Length;
+        private char advance() => source[current++];
+        private void scanToken()
+        {
+            char c = advance();
+            switch (c)
+            {
+                case '(': addToken(TokenType.Left_Paren); break;
+                case ')': addToken(TokenType.Right_Paren); break;
+                case '-': addToken(TokenType.Minus); break;
+                case '+': addToken(TokenType.Plus); break;
+                case ';': addToken(TokenType.Semicolon); break;
+            }
+        }
+        private void addToken(TokenType type) => addToken(type, null);
+
+        private void addToken(TokenType tokentype, Object literal)
+        {
+            string text = source[start..current];
+            tokens.Add(new Token(tokentype, text, literal));
+        }
     }
     
 }

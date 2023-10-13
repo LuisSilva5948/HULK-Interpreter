@@ -14,7 +14,7 @@ namespace HULK_Interpreter
         {
             //tokenizando
             Lexer lexer = new Lexer(source);
-            List<Token> tokens = lexer.GetTokens();
+            List<Token> tokens = lexer.ScanTokens();
 
             //mostrando los tokens
             foreach (Token token in tokens)

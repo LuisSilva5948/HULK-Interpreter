@@ -13,7 +13,7 @@ namespace HULK_Interpreter
         public object Literal { get; }
         public int Line { get; }
 
-        public Token(TokenType type, string lexeme, string literal)
+        public Token(TokenType type, string lexeme, Object literal)
         {
             Type = type;        //tipo
             Lexeme = lexeme;    //id

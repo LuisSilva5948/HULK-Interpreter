@@ -12,7 +12,7 @@ namespace HULK_Interpreter
         Identifier, Number, String,
 
         // Single-character tokens.
-        Left_Paren, Right_Paren,
+        Left_Paren, Right_Paren, Semicolon,
 
         //Operators
         Plus, Minus,
