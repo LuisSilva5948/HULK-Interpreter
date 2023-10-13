@@ -4,10 +4,6 @@ namespace HULK_Interpreter
 {
     public class Lexer
     {
-        public static void Main(string[] args)
-        {
-
-        }
         public static void Tokenize(string SourceCode)
         {
 
@@ -25,11 +21,13 @@ namespace HULK_Interpreter
             //Tokenizar
             MatchCollection matches = regex.Matches(SourceCode);
 
-            // Imprimir los tokens encontrados
-            foreach (Match match in matches)
+            string[] tokens = new string[matches.Count];
+            for (int i = 0; i < tokens.Length; i++)
             {
-                Console.WriteLine(match.Value);
+                tokens[i] = matches[i].Value;
+                Console.Write(matches[i].Value + "__");
             }
+            Console.WriteLine();
         }
     }
     
