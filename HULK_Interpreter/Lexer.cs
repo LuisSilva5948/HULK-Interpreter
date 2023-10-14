@@ -6,8 +6,10 @@ namespace HULK_Interpreter
     {
         private readonly string source;
         private List<Token> tokens = new List<Token>();
-        private int start = 0;
+        private int startofLexeme = 0;
         private int current = 0;
+        //startofLexeme apunta al primer caracter en el lexema siendo escaneado,
+        //current apunta al caracter actualmente siendo considerado.
 
         public Lexer(string source)
         {
@@ -16,35 +18,39 @@ namespace HULK_Interpreter
         
         public List<Token> ScanTokens()
         {
-            while(!isAtEnd()){
-                start = current;
-                scanToken();
+            while(!IsAtEnd()){
+                startofLexeme = current;
+                ScanToken();
             }
-            tokens.Add(new Token(TokenType.EOL,"",""));
+            tokens.Add(new Token(TokenType.EOL,"",null));
             return tokens;
         }
-
-        public bool isAtEnd() => current >= source.Length;
-        private char advance() => source[current++];
-        private void scanToken()
+        private void ScanToken()
         {
-            char c = advance();
+            char c = Advance();
             switch (c)
             {
-                case '(': addToken(TokenType.Left_Paren); break;
-                case ')': addToken(TokenType.Right_Paren); break;
-                case '-': addToken(TokenType.Minus); break;
-                case '+': addToken(TokenType.Plus); break;
-                case ';': addToken(TokenType.Semicolon); break;
+                case '(': AddToken(TokenType.Left_Paren); break;
+                case ')': AddToken(TokenType.Right_Paren); break;
+                case '-': AddToken(TokenType.Minus); break;
+                case '+': AddToken(TokenType.Plus); break;
+                case ';': AddToken(TokenType.Semicolon); break;
+                default:
+                    Console.WriteLine(new Error(ErrorType.Lexical, "Unexpected character: " + c).ToString());
+                    break;
             }
         }
-        private void addToken(TokenType type) => addToken(type, null);
-
-        private void addToken(TokenType tokentype, Object literal)
+        //los agregadores de tokens a la lista
+        private void AddToken(TokenType tokentype) => AddToken(tokentype, null);
+        private void AddToken(TokenType tokentype, Object literal)
         {
-            string text = source[start..current];
-            tokens.Add(new Token(tokentype, text, literal));
+            string lexeme = source.Substring(startofLexeme, current - startofLexeme);
+            tokens.Add(new Token(tokentype, lexeme, literal));
         }
+        //bool para si hemos terminado de escanear todo
+        private bool IsAtEnd() => current >= source.Length;
+        //retorna el proximo caracter
+        private char Advance() => source[current++];
     }
     
 }
