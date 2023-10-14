@@ -7,16 +7,17 @@ namespace HULK_ConsoleInterface
         static void Main(string[] args)
         {
             Interpreter interpreter = new Interpreter();
-            do
+            while (true) 
             {
                 Console.Write(">");
                 string line = Console.ReadLine().ToString();
                 if (line != null)
                 {
                     interpreter.Run(line);
+                    interpreter.hadError = false;
                 }
-                else throw new Exception("No input received.");
-            } while (true);
+                else Console.WriteLine("No input received.");
+            }
         }
     }
 }

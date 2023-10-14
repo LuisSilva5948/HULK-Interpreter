@@ -13,7 +13,6 @@ namespace HULK_Interpreter
 
         public Interpreter() 
         {
-            errors = new List<Error>();
             hadError = false;
         }
         public void Run(string source)
