@@ -14,7 +14,7 @@ namespace HULK_Interpreter
         // Single-character tokens.
         Left_Paren, Right_Paren,
         Left_Brace, Right_Brace,
-        Semicolon, Comma, Dot,
+        Semicolon, Comma,
 
         //Operators
         Plus, Minus,

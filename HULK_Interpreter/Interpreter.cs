@@ -8,7 +8,7 @@ namespace HULK_Interpreter
 {
     public class Interpreter
     {
-        private List<Error> errors;
+        //private List<Error> errors;
         public bool hadError;
 
         public Interpreter() 
