@@ -8,8 +8,11 @@ namespace HULK_Interpreter
 {
     public enum TokenType
     {
+
+        Keyword,
+
         //Literal
-        Identifier, Number, String,
+        Identifier, Number, String, Boolean,
 
         // Single-character tokens.
         Left_Paren, Right_Paren,
@@ -17,11 +20,13 @@ namespace HULK_Interpreter
         Semicolon, Comma,
 
         //Operators
-        Plus, Minus,
+        Plus, Minus, Times, Divide,
         Not, Not_Equal,
         Equal, Equal_Equal,
         Greater, Greater_Equal,
         Less, Less_Equal,
+        And, Or, Concat,
+        Lambda,
 
         //End of Line
         EOL

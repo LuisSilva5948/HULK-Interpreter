@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 namespace HULK_Interpreter
 {
@@ -8,7 +9,7 @@ namespace HULK_Interpreter
         private List<Token> tokens;
         private List<Error> errors;
         private int startofLexeme;
-        private int current;
+        private int currentPos;
         //startofLexeme apunta al primer caracter en el lexema siendo escaneado,
         //current apunta al caracter actualmente siendo considerado.
 
@@ -18,13 +19,13 @@ namespace HULK_Interpreter
             errors = new List<Error>();
             tokens = new List<Token>();
             startofLexeme = 0;
-            current = 0;
+            currentPos = 0;
         }
         
         public List<Token> ScanTokens()
         {
             while(!IsAtEnd()){
-                startofLexeme = current;
+                startofLexeme = currentPos;
                 ScanToken();
             }
             tokens.Add(new Token(TokenType.EOL,"EOL",null));
@@ -36,6 +37,7 @@ namespace HULK_Interpreter
             char c = Advance();
             switch (c)
             {
+                case '\0':
                 //ignorar espacios en blanco
                 case ' ':
                 case '\r':
@@ -51,10 +53,15 @@ namespace HULK_Interpreter
                 case ';': AddToken(TokenType.Semicolon); break;
                 case '-': AddToken(TokenType.Minus); break;
                 case '+': AddToken(TokenType.Plus); break;
+                case '*': AddToken(TokenType.Times); break;
+                case '/': AddToken(TokenType.Divide); break;
+                case '@': AddToken(TokenType.Concat); break;
                 case '!': AddToken(Match('=') ? TokenType.Not_Equal : TokenType.Not); break;
-                case '=': AddToken(Match('=') ? TokenType.Equal_Equal : TokenType.Equal); break;
                 case '<': AddToken(Match('=') ? TokenType.Less_Equal : TokenType.Less); break;
                 case '>': AddToken(Match('=') ? TokenType.Greater_Equal : TokenType.Greater); break;
+                case '=':
+                    if (Match('>')) AddToken(TokenType.Lambda);
+                    else AddToken(Match('=') ? TokenType.Equal_Equal : TokenType.Equal); break;
                 //buscar numero, string o devolver error
                 default:
                     if (char.IsDigit(c))
@@ -62,12 +69,12 @@ namespace HULK_Interpreter
                         ScanNumber();
                         break;
                     }
-                    if (char.IsLetter(c))
+                    if (char.IsLetter(c) || c == '_')
                     {
                         ScanString();
                         break;
                     }
-                    errors.Add(new Error(ErrorType.Lexical, c + " is not a valid token."));
+                    errors.Add(new Error(ErrorType.Lexical, c + " is not a supported character."));
                     break;
             }
         }
@@ -79,7 +86,7 @@ namespace HULK_Interpreter
         }
         private void AddToken(TokenType tokentype, Object literal)
         {
-            string lexeme = source.Substring(startofLexeme, current - startofLexeme);
+            string lexeme = GetLexeme();
             tokens.Add(new Token(tokentype, lexeme, literal));
         }
 
@@ -87,33 +94,55 @@ namespace HULK_Interpreter
         private bool Match(char expected)
         {
             if (IsAtEnd()) return false;
-            if (source[current] != expected) return false;
-            current++;
+            if (source[currentPos] != expected) return false;
+            currentPos++;
             return true;
         }
+        //retorna el char actual
+        private char Peek()
+        {
+            if (IsAtEnd()) return '\0';
+            return source[currentPos];
+        }
 
-        //bool para si hemos terminado de escanear todo
-        private bool IsAtEnd()
-        {
-            return current >= source.Length;
-        }
-        //retorna el proximo caracter
-        private char Advance()
-        {
-            return source[current++];
-        }
+        private bool IsAtEnd() => currentPos >= source.Length;
+        private char Advance() => source[currentPos++];
+        private string GetLexeme() => source.Substring(startofLexeme, currentPos - startofLexeme);
 
         private void ScanNumber()
         {
-            while (true)
-            {
-
+            int dotCounter = 0;
+            while (char.IsDigit(Peek()) || Peek() == '.'){
+                if (Peek() == '.') dotCounter++;
+                Advance();
             }
-            return;
+            if (dotCounter > 1) errors.Add(new Error(ErrorType.Lexical, GetLexeme() + " is not a valid number."));
+            else AddToken(TokenType.Number, double.Parse(GetLexeme()));
         }
         private void ScanString()
         {
-            return;
+            while (char.IsLetterOrDigit(Peek()) || Peek() == '_')
+            {
+                Advance();
+            }
+            string lexeme = GetLexeme();
+            switch(lexeme)
+            {
+                case "let":
+                case "in":
+                case "if":
+                case "else":
+                case "print":
+                case "function":
+                    AddToken(TokenType.Keyword, lexeme); break;
+                case "true":
+                case "false":
+                    AddToken(TokenType.Boolean, bool.Parse(lexeme)); break;
+                case "PI":
+                    AddToken(TokenType.Number, Math.PI); break;
+                default:
+                    AddToken(TokenType.Identifier, lexeme); break;
+            }
         }
     }
     
