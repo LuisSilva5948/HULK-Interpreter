@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace HULK_Interpreter
 {
-    internal class Error
+    public class Error
     {
-        private string message;
+        public string message { get; private set; }
 
-        private ErrorType errorType;
+        public ErrorType errorType { get; private set; }
 
         public Error(ErrorType errorType, string message)
         {
@@ -22,7 +22,7 @@ namespace HULK_Interpreter
             return errorType + " error. " + message;
         }
     }
-    enum ErrorType
+    public enum ErrorType
     {
         Lexical,
         Syntax,

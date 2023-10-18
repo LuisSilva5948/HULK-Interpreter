@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.ComponentModel.Design;
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
 namespace HULK_Interpreter
@@ -7,7 +9,7 @@ namespace HULK_Interpreter
     {
         private readonly string source;
         private List<Token> tokens;
-        private List<Error> errors;
+        public List<Error> errors { get; private set; }
         private int startofLexeme;
         private int currentPos;
         //startofLexeme apunta al primer caracter en el lexema siendo escaneado,
@@ -47,21 +49,24 @@ namespace HULK_Interpreter
                 //buscar tokens de uno o dos caracteres
                 case '(': AddToken(TokenType.Left_Paren); break;
                 case ')': AddToken(TokenType.Right_Paren); break;
-                case '{': AddToken(TokenType.Left_Brace); break;
-                case '}': AddToken(TokenType.Right_Brace); break;
                 case ',': AddToken(TokenType.Comma); break;
                 case ';': AddToken(TokenType.Semicolon); break;
                 case '-': AddToken(TokenType.Minus); break;
                 case '+': AddToken(TokenType.Plus); break;
                 case '*': AddToken(TokenType.Times); break;
                 case '/': AddToken(TokenType.Divide); break;
+                case '%': AddToken(TokenType.Module); break;
+                case '^': AddToken(TokenType.Power); break;
                 case '@': AddToken(TokenType.Concat); break;
+                case '&': AddToken(TokenType.And); break;
+                case '|': AddToken(TokenType.Or); break;
                 case '!': AddToken(Match('=') ? TokenType.Not_Equal : TokenType.Not); break;
                 case '<': AddToken(Match('=') ? TokenType.Less_Equal : TokenType.Less); break;
                 case '>': AddToken(Match('=') ? TokenType.Greater_Equal : TokenType.Greater); break;
                 case '=':
                     if (Match('>')) AddToken(TokenType.Lambda);
                     else AddToken(Match('=') ? TokenType.Equal_Equal : TokenType.Equal); break;
+                case '\"': ScanStringValue(); break;
                 //buscar numero, string o devolver error
                 default:
                     if (char.IsDigit(c))
@@ -79,7 +84,6 @@ namespace HULK_Interpreter
             }
         }
 
-        //los agregadores de tokens a la lista
         private void AddToken(TokenType tokentype) 
         {
             AddToken(tokentype, null);
@@ -112,11 +116,13 @@ namespace HULK_Interpreter
         private void ScanNumber()
         {
             int dotCounter = 0;
-            while (char.IsDigit(Peek()) || Peek() == '.'){
+            bool isvalidnumber = true;
+            while (char.IsLetterOrDigit(Peek()) || Peek() == '.'){
                 if (Peek() == '.') dotCounter++;
+                if (char.IsLetter(Peek())) isvalidnumber = false;
                 Advance();
             }
-            if (dotCounter > 1) errors.Add(new Error(ErrorType.Lexical, GetLexeme() + " is not a valid number."));
+            if (dotCounter > 1 || !isvalidnumber) errors.Add(new Error(ErrorType.Lexical, GetLexeme() + " is not a valid token."));
             else AddToken(TokenType.Number, double.Parse(GetLexeme()));
         }
         private void ScanString()
@@ -128,21 +134,59 @@ namespace HULK_Interpreter
             string lexeme = GetLexeme();
             switch(lexeme)
             {
-                case "let":
-                case "in":
-                case "if":
-                case "else":
-                case "print":
-                case "function":
-                    AddToken(TokenType.Keyword, lexeme); break;
+                case "let": AddToken(TokenType.Let, lexeme); break;
+                case "in": AddToken(TokenType.In, lexeme); break;
+                case "if": AddToken(TokenType.If, lexeme); break;
+                case "else": AddToken(TokenType.Else, lexeme); break;
+                case "print": AddToken(TokenType.Print, lexeme); break;
+                case "function": AddToken(TokenType.Function, lexeme); break;
                 case "true":
                 case "false":
                     AddToken(TokenType.Boolean, bool.Parse(lexeme)); break;
-                case "PI":
-                    AddToken(TokenType.Number, Math.PI); break;
+                case "PI": AddToken(TokenType.Number, Math.PI); break;
+                case "e": AddToken(TokenType.Number, Math.E); break;
+                case "sen": AddToken(TokenType.Sen, lexeme); break;
+                case "cos": AddToken(TokenType.Cos, lexeme); break;
                 default:
-                    AddToken(TokenType.Identifier, lexeme); break;
+                    string possiblelexeme = lexeme.ToLower();
+                    if (possiblelexeme == lexeme)
+                    {
+                        AddToken(TokenType.Identifier, lexeme);
+                        break;
+                    }
+                    errors.Add(new Error(ErrorType.Lexical, '\"' + lexeme + "\" is not a valid identifier."));
+                    break;
             }
+        }
+        private void ScanStringValue()
+        {
+            //tratando de no llevarme la comilla como parte del
+            if (Peek() == '\"')
+            {
+                Advance();
+                AddToken(TokenType.String, "");
+                return;
+            }
+            else if (IsAtEnd())
+            {
+                errors.Add(new Error(ErrorType.Lexical, "( \" ) is not a valid token."));
+                return;
+            }
+            int startIndex = currentPos;
+            while (Peek() != '\"')
+            {
+                if (IsAtEnd())
+                {
+                    errors.Add(new Error(ErrorType.Lexical, "( \" ) expected."));
+                    return;
+                }
+                Advance();
+            }
+            if (Peek() == '\"')
+                Advance();
+            int endIndex = currentPos - 1;
+            string literal = source.Substring(startIndex, endIndex - startIndex);
+            AddToken(TokenType.String, literal);
         }
     }
     

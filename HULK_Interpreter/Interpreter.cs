@@ -8,7 +8,6 @@ namespace HULK_Interpreter
 {
     public class Interpreter
     {
-        //private List<Error> errors;
         public bool hadError;
 
         public Interpreter() 
@@ -21,16 +20,23 @@ namespace HULK_Interpreter
             Lexer lexer = new Lexer(source);
             List<Token> tokens = lexer.ScanTokens();
 
-            if (!hadError)
+            if (lexer.errors.Count > 0)
             {
-
+                foreach (Error error in lexer.errors)
+                {
+                    Console.WriteLine(error.ToString());
+                }
+            }
+            else
+            {
+                //mostrando los tokens
+                foreach (Token token in tokens)
+                {
+                    Console.WriteLine(token.ToString());
+                }
             }
 
-            //mostrando los tokens
-            foreach (Token token in tokens)
-            {
-                Console.WriteLine(token.ToString());
-            }
+            
         }
     }
 }
