@@ -14,6 +14,21 @@ namespace HULK_Interpreter
         private int currentPos;
         //startofLexeme apunta al primer caracter en el lexema siendo escaneado,
         //current apunta al caracter actualmente siendo considerado.
+        private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>{
+            {"let", TokenType.LET},
+            {"in", TokenType.IN},
+            {"print", TokenType.PRINT},
+            {"function", TokenType.FUNCTION},
+            {"if", TokenType.IF},
+            {"else", TokenType.ELSE},
+            {"true", TokenType.BOOLEAN},
+            {"false", TokenType.BOOLEAN},
+            {"PI", TokenType.NUMBER},
+            {"e", TokenType.NUMBER},
+            {"sen", TokenType.SEN},
+            {"cos", TokenType.COS},
+            {"log", TokenType.LOG}
+        };
 
         public Lexer(string source)
         {
@@ -47,25 +62,25 @@ namespace HULK_Interpreter
                 case '\n':
                     break;
                 //buscar tokens de uno o dos caracteres
-                case '(': AddToken(TokenType.Left_Paren); break;
-                case ')': AddToken(TokenType.Right_Paren); break;
-                case ',': AddToken(TokenType.Comma); break;
-                case ';': AddToken(TokenType.Semicolon); break;
-                case '-': AddToken(TokenType.Minus); break;
-                case '+': AddToken(TokenType.Plus); break;
-                case '*': AddToken(TokenType.Times); break;
-                case '/': AddToken(TokenType.Divide); break;
-                case '%': AddToken(TokenType.Module); break;
-                case '^': AddToken(TokenType.Power); break;
-                case '@': AddToken(TokenType.Concat); break;
-                case '&': AddToken(TokenType.And); break;
-                case '|': AddToken(TokenType.Or); break;
-                case '!': AddToken(Match('=') ? TokenType.Not_Equal : TokenType.Not); break;
-                case '<': AddToken(Match('=') ? TokenType.Less_Equal : TokenType.Less); break;
-                case '>': AddToken(Match('=') ? TokenType.Greater_Equal : TokenType.Greater); break;
+                case '(': AddToken(TokenType.LEFT_PAREN); break;
+                case ')': AddToken(TokenType.RIGHT_PAREN); break;
+                case ',': AddToken(TokenType.COMMA); break;
+                case ';': AddToken(TokenType.SEMICOLON); break;
+                case '-': AddToken(TokenType.MINUS); break;
+                case '+': AddToken(TokenType.PLUS); break;
+                case '*': AddToken(TokenType.TIMES); break;
+                case '/': AddToken(TokenType.DIVIDE); break;
+                case '%': AddToken(TokenType.MODULE); break;
+                case '^': AddToken(TokenType.POWER); break;
+                case '@': AddToken(TokenType.CONCAT); break;
+                case '&': AddToken(TokenType.AND); break;
+                case '|': AddToken(TokenType.OR); break;
+                case '!': AddToken(Match('=') ? TokenType.NOT_EQUAL : TokenType.NOT); break;
+                case '<': AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
+                case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '=':
-                    if (Match('>')) AddToken(TokenType.Lambda);
-                    else AddToken(Match('=') ? TokenType.Equal_Equal : TokenType.Equal); break;
+                    if (Match('>')) AddToken(TokenType.LAMBDA);
+                    else AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
                 case '\"': ScanStringValue(); break;
                 //buscar numero, string o devolver error
                 default:
@@ -123,7 +138,7 @@ namespace HULK_Interpreter
                 Advance();
             }
             if (dotCounter > 1 || !isvalidnumber) errors.Add(new Error(ErrorType.Lexical, GetLexeme() + " is not a valid token."));
-            else AddToken(TokenType.Number, double.Parse(GetLexeme()));
+            else AddToken(TokenType.NUMBER, double.Parse(GetLexeme()));
         }
         private void ScanString()
         {
@@ -134,27 +149,25 @@ namespace HULK_Interpreter
             string lexeme = GetLexeme();
             switch(lexeme)
             {
-                case "let": AddToken(TokenType.Let, lexeme); break;
-                case "in": AddToken(TokenType.In, lexeme); break;
-                case "if": AddToken(TokenType.If, lexeme); break;
-                case "else": AddToken(TokenType.Else, lexeme); break;
-                case "print": AddToken(TokenType.Print, lexeme); break;
-                case "function": AddToken(TokenType.Function, lexeme); break;
+                case "let": AddToken(TokenType.LET, lexeme); break;
+                case "in": AddToken(TokenType.IN, lexeme); break;
+                case "print": AddToken(TokenType.PRINT, lexeme); break;
+                case "function": AddToken(TokenType.FUNCTION, lexeme); break;
+                case "if": AddToken(TokenType.IF, lexeme); break;
+                case "else": AddToken(TokenType.ELSE, lexeme); break;
                 case "true":
                 case "false":
-                    AddToken(TokenType.Boolean, bool.Parse(lexeme)); break;
-                case "PI": AddToken(TokenType.Number, Math.PI); break;
-                case "e": AddToken(TokenType.Number, Math.E); break;
-                case "sen": AddToken(TokenType.Sen, lexeme); break;
-                case "cos": AddToken(TokenType.Cos, lexeme); break;
+                    AddToken(TokenType.BOOLEAN, bool.Parse(lexeme)); break;
+                case "PI": AddToken(TokenType.NUMBER, Math.PI); break;
+                case "e": AddToken(TokenType.NUMBER, Math.E); break;
+                case "sen": AddToken(TokenType.SEN, lexeme); break;
+                case "cos": AddToken(TokenType.COS, lexeme); break;
+                case "log": AddToken(TokenType.LOG, lexeme); break;
                 default:
-                    string possiblelexeme = lexeme.ToLower();
-                    if (possiblelexeme == lexeme)
-                    {
-                        AddToken(TokenType.Identifier, lexeme);
-                        break;
-                    }
-                    errors.Add(new Error(ErrorType.Lexical, '\"' + lexeme + "\" is not a valid identifier."));
+                    if (keywords.ContainsKey(lexeme.ToLower()))
+                        errors.Add(new Error(ErrorType.Lexical, '\"' + lexeme + "\" is not a valid identifier."));
+                    else
+                        AddToken(TokenType.IDENTIFIER, lexeme);
                     break;
             }
         }
@@ -164,7 +177,7 @@ namespace HULK_Interpreter
             if (Peek() == '\"')
             {
                 Advance();
-                AddToken(TokenType.String, "");
+                AddToken(TokenType.STRING, "");
                 return;
             }
             else if (IsAtEnd())
@@ -186,7 +199,7 @@ namespace HULK_Interpreter
                 Advance();
             int endIndex = currentPos - 1;
             string literal = source.Substring(startIndex, endIndex - startIndex);
-            AddToken(TokenType.String, literal);
+            AddToken(TokenType.STRING, literal);
         }
     }
     

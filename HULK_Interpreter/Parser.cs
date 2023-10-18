@@ -8,6 +8,15 @@ namespace HULK_Interpreter
 {
     internal class Parser
     {
-        //aqui recibiria los tokens para parsearlos
+        private readonly List<Token> tokens;
+        private int currentPos;
+        private Token currentToken;
+
+        public Parser(List<Token> tokens)
+        {
+            this.tokens = tokens;
+            currentPos = 0;
+            currentToken = tokens[0];
+        }
     }
 }

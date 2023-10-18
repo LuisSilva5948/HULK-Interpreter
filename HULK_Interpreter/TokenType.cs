@@ -9,51 +9,52 @@ namespace HULK_Interpreter
     public enum TokenType
     {
 
-        //Keywords
-        Let,
-        In,
-        Print,
-        Function,
-        If,
-        Else,
+        // Keywords
+        LET,
+        IN,
+        PRINT,
+        FUNCTION,
+        IF,
+        ELSE,
         PI,
-        Euler,
-        Sen,
-        Cos,
-        
-        //variables
-        Identifier,
-        Number,
-        String,
-        Boolean,
+        EULER,
+        SEN,
+        COS,
+        LOG,
+
+        // Variables
+        IDENTIFIER,
+        NUMBER,
+        STRING,
+        BOOLEAN,
 
         // Separators
-        Left_Paren,
-        Right_Paren,
-        Semicolon,
-        Comma,
+        LEFT_PAREN,
+        RIGHT_PAREN,
+        SEMICOLON,
+        COMMA,
 
-        //Operators
-        Plus,
-        Minus,
-        Times,
-        Divide,
-        Module,
-        Power,
-        And,
-        Or,
-        Not,
-        Not_Equal,
-        Equal,
-        Equal_Equal,
-        Greater,
-        Greater_Equal,
-        Less,
-        Less_Equal,
-        Concat,
-        Lambda,
+        // Operators
+        PLUS,
+        MINUS,
+        TIMES,
+        DIVIDE,
+        MODULE,
+        POWER,
+        AND,
+        OR,
+        NOT,
+        NOT_EQUAL,
+        EQUAL,
+        EQUAL_EQUAL,
+        GREATER,
+        GREATER_EQUAL,
+        LESS,
+        LESS_EQUAL,
+        CONCAT,
+        LAMBDA,
 
-        //End of Line
+        // End of Line
         EOL
     }
 }

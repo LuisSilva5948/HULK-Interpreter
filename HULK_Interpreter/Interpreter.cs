@@ -16,26 +16,33 @@ namespace HULK_Interpreter
         }
         public void Run(string source)
         {
-            //tokenizando
-            Lexer lexer = new Lexer(source);
-            List<Token> tokens = lexer.ScanTokens();
-
-            if (lexer.errors.Count > 0)
+            try
             {
-                foreach (Error error in lexer.errors)
+                //tokenizando
+                Lexer lexer = new Lexer(source);
+                List<Token> tokens = lexer.ScanTokens();
+
+                if (lexer.errors.Count > 0)
                 {
-                    Console.WriteLine(error.ToString());
+                    foreach (Error error in lexer.errors)
+                    {
+                        Console.WriteLine(error.ToString());
+                    }
+                }
+                else
+                {
+                    //mostrando los tokens
+                    foreach (Token token in tokens)
+                    {
+                        Console.WriteLine(token.ToString());
+                    }
                 }
             }
-            else
+            catch (Exception e)
             {
-                //mostrando los tokens
-                foreach (Token token in tokens)
-                {
-                    Console.WriteLine(token.ToString());
-                }
+                Console.WriteLine($"Error: {e}");
             }
-
+            
             
         }
     }
