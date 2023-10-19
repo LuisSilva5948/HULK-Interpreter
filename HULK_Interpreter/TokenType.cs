@@ -37,7 +37,7 @@ namespace HULK_Interpreter
         // Operators
         PLUS,
         MINUS,
-        TIMES,
+        MULTIPLY,
         DIVIDE,
         MODULE,
         POWER,
@@ -52,9 +52,9 @@ namespace HULK_Interpreter
         LESS,
         LESS_EQUAL,
         CONCAT,
-        LAMBDA,
+        ARROW,
 
-        // End of Line
-        EOL
+        // End of File
+        EOF
     }
 }

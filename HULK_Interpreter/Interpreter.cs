@@ -28,19 +28,19 @@ namespace HULK_Interpreter
                     {
                         Console.WriteLine(error.ToString());
                     }
+                    return;
                 }
-                else
+                //mostrando los tokens
+                foreach (Token token in tokens)
                 {
-                    //mostrando los tokens
-                    foreach (Token token in tokens)
-                    {
-                        Console.WriteLine(token.ToString());
-                    }
+                    Console.WriteLine(token.ToString());
                 }
+                Parser parser = new Parser(tokens);
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Error: {e}");
+                return;
             }
             
             

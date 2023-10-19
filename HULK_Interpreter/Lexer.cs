@@ -45,7 +45,7 @@ namespace HULK_Interpreter
                 startofLexeme = currentPos;
                 ScanToken();
             }
-            tokens.Add(new Token(TokenType.EOL,"EOL",null));
+            tokens.Add(new Token(TokenType.EOF,"EOF",null));
             return tokens;
         }
 
@@ -68,7 +68,7 @@ namespace HULK_Interpreter
                 case ';': AddToken(TokenType.SEMICOLON); break;
                 case '-': AddToken(TokenType.MINUS); break;
                 case '+': AddToken(TokenType.PLUS); break;
-                case '*': AddToken(TokenType.TIMES); break;
+                case '*': AddToken(TokenType.MULTIPLY); break;
                 case '/': AddToken(TokenType.DIVIDE); break;
                 case '%': AddToken(TokenType.MODULE); break;
                 case '^': AddToken(TokenType.POWER); break;
@@ -79,7 +79,7 @@ namespace HULK_Interpreter
                 case '<': AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
                 case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '=':
-                    if (Match('>')) AddToken(TokenType.LAMBDA);
+                    if (Match('>')) AddToken(TokenType.ARROW);
                     else AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
                 case '\"': ScanStringValue(); break;
                 //buscar numero, string o devolver error
