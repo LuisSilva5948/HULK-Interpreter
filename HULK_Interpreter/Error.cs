@@ -9,9 +9,7 @@ namespace HULK_Interpreter
     public class Error
     {
         public string message { get; private set; }
-
         public ErrorType errorType { get; private set; }
-
         public Error(ErrorType errorType, string message)
         {
             this.errorType = errorType;
@@ -19,13 +17,13 @@ namespace HULK_Interpreter
         }
         public override string ToString()
         {
-            return errorType + " error. " + message;
+            return $"! {errorType} ERROR. {message}";
         }
     }
     public enum ErrorType
     {
-        Lexical,
-        Syntax,
-        Semantic
+        LEXICAL,
+        SYNTAX,
+        SEMANTIC
     }
 }

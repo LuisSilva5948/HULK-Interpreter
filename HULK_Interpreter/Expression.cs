@@ -8,50 +8,38 @@ namespace HULK_Interpreter
 {
     public abstract class Expression
     {
-        public abstract object Evaluate();
     }
 
-    public class AssignExpr : Expression
+    public class BinaryExpression : Expression
     {
-        private Token name;
-        private Expression value;
-
-        public AssignExpr(Token name, Expression value)
+        public BinaryExpression(Expression left, Token _operator, Expression right)
         {
-            this.name = name;
-            this.value = value;
+            this.Left = left;
+            this.Operator = _operator;
+            this.Right = right;
         }
 
-        public override object Evaluate()
-        {
-            // Implementar la lógica para evaluar una expresión de asignación
-            // y devolver el resultado.
-            return value;
-        }
-    }
+        public Expression Left { get; }
+        public Token Operator { get; }
+        public Expression Right { get; }
 
-    public class BinaryExpr : Expression
-    {
-        private Expression left;
-        private Token operator_;
-        private Expression right;
-
-        public BinaryExpr(Expression left, Token operator_, Expression right)
+        public object Evaluate(object left, object right)
         {
-            this.left = left;
-            this.operator_ = operator_;
-            this.right = right;
-        }
-
-        public override object Evaluate()
-        {
-            // Implementar la lógica para evaluar una expresión binaria
-            // y devolver el resultado.
-            return left.Evaluate();
+            switch (Operator.Type)
+            {
+                case TokenType.PLUS:
+                    return (double)left + (double)right;
+                case TokenType.MINUS:
+                    return (double)left - (double)right;
+                default: 
+                    throw new Exception("Invalid operation.");
+            }
         }
     }
 
-    // Otras subclases para los demás tipos de expresión...
+    
+    // Resto de las clases de expresiones...
+
 
 
     /*public abstract class Expression

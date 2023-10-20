@@ -28,7 +28,6 @@ namespace HULK_Interpreter
                     {
                         Console.WriteLine(error.ToString());
                     }
-                    return;
                 }
                 //mostrando los tokens
                 foreach (Token token in tokens)

@@ -38,14 +38,15 @@ namespace HULK_Interpreter
             startofLexeme = 0;
             currentPos = 0;
         }
-        
+
         public List<Token> ScanTokens()
         {
-            while(!IsAtEnd()){
+            while (!IsAtEnd())
+            {
                 startofLexeme = currentPos;
                 ScanToken();
             }
-            tokens.Add(new Token(TokenType.EOF,"EOF",null));
+            tokens.Add(new Token(TokenType.EOF, "EOF", null));
             return tokens;
         }
 
@@ -94,12 +95,12 @@ namespace HULK_Interpreter
                         ScanString();
                         break;
                     }
-                    errors.Add(new Error(ErrorType.Lexical, c + " is not a supported character."));
+                    errors.Add(new Error(ErrorType.LEXICAL, c + " is not a supported character."));
                     break;
             }
         }
 
-        private void AddToken(TokenType tokentype) 
+        private void AddToken(TokenType tokentype)
         {
             AddToken(tokentype, null);
         }
@@ -132,12 +133,13 @@ namespace HULK_Interpreter
         {
             int dotCounter = 0;
             bool isvalidnumber = true;
-            while (char.IsLetterOrDigit(Peek()) || Peek() == '.'){
+            while (char.IsLetterOrDigit(Peek()) || Peek() == '.')
+            {
                 if (Peek() == '.') dotCounter++;
                 if (char.IsLetter(Peek())) isvalidnumber = false;
                 Advance();
             }
-            if (dotCounter > 1 || !isvalidnumber) errors.Add(new Error(ErrorType.Lexical, GetLexeme() + " is not a valid token."));
+            if (dotCounter > 1 || !isvalidnumber) errors.Add(new Error(ErrorType.LEXICAL, GetLexeme() + " is not a valid token."));
             else AddToken(TokenType.NUMBER, double.Parse(GetLexeme()));
         }
         private void ScanString()
@@ -147,7 +149,7 @@ namespace HULK_Interpreter
                 Advance();
             }
             string lexeme = GetLexeme();
-            switch(lexeme)
+            switch (lexeme)
             {
                 case "let": AddToken(TokenType.LET, lexeme); break;
                 case "in": AddToken(TokenType.IN, lexeme); break;
@@ -165,7 +167,7 @@ namespace HULK_Interpreter
                 case "log": AddToken(TokenType.LOG, lexeme); break;
                 default:
                     if (keywords.ContainsKey(lexeme.ToLower()))
-                        errors.Add(new Error(ErrorType.Lexical, '\"' + lexeme + "\" is not a valid identifier."));
+                        errors.Add(new Error(ErrorType.LEXICAL, '\"' + lexeme + "\" is not a valid identifier."));
                     else
                         AddToken(TokenType.IDENTIFIER, lexeme);
                     break;
@@ -182,7 +184,7 @@ namespace HULK_Interpreter
             }
             else if (IsAtEnd())
             {
-                errors.Add(new Error(ErrorType.Lexical, "( \" ) is not a valid token."));
+                errors.Add(new Error(ErrorType.LEXICAL, "( \" ) is not a valid token."));
                 return;
             }
             int startIndex = currentPos;
@@ -190,7 +192,7 @@ namespace HULK_Interpreter
             {
                 if (IsAtEnd())
                 {
-                    errors.Add(new Error(ErrorType.Lexical, "( \" ) expected."));
+                    errors.Add(new Error(ErrorType.LEXICAL, "( \" ) expected."));
                     return;
                 }
                 Advance();
@@ -202,5 +204,5 @@ namespace HULK_Interpreter
             AddToken(TokenType.STRING, literal);
         }
     }
-    
+
 }

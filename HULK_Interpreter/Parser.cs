@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HULK_Interpreter
 {
@@ -17,28 +20,138 @@ namespace HULK_Interpreter
             currentPos = 0;
         }
 
-        private Token GetToken()
+        private Expression Expression()
+        {
+            return Logical();
+        }
+        private Expression Logical()
+        {
+            Expression expression = Equality();
+            while(Match(TokenType.AND, TokenType.OR))
+            {
+                Token Operator = Previous();
+                Expression right = Equality();
+                expression = new BinaryExpression(expression, Operator, right);
+            }
+            return expression;
+        }
+        private Expression Equality()
+        {
+            Expression expression = Comparison();
+            while(Match(TokenType.EQUAL_EQUAL, TokenType.NOT_EQUAL))
+            {
+                Token Operator = Previous();
+                Expression right = Comparison();
+                expression = new BinaryExpression(expression, Operator, right);
+            }
+            return expression;
+        }
+        private Expression Comparison()
+        {
+            Expression expression = Concatenation();
+            while (Match(TokenType.GREATER_EQUAL, TokenType.GREATER, TokenType.LESS, TokenType.LESS_EQUAL))
+            {
+                Token Operator = Previous();
+                Expression right = Concatenation();
+                expression = new BinaryExpression(expression, Operator, right);
+            }
+            return expression;
+        }
+        private Expression Concatenation()
+        {
+            Expression expression = Term();
+            while (Match(TokenType.CONCAT))
+            {
+                Token Operator = Previous();
+                Expression right = Concatenation();
+                expression = new BinaryExpression(expression, Operator, right);
+            }
+            return expression;
+        }
+        private Expression Term()
+        {
+            Expression expression = Factor();
+            while (Match(TokenType.PLUS, TokenType.MINUS))
+            {
+                Token Operator = Previous();
+                Expression right = Factor();
+                expression = new BinaryExpression(expression, Operator, right);
+            }
+            return expression;
+        }
+        private Expression Factor()
+        {
+            Expression expression = Unary();
+            while (Match(TokenType.MULTIPLY, TokenType.DIVIDE))
+            {
+                Token Operator = Previous();
+                Expression right = Unary();
+                expression = new BinaryExpression(expression, Operator, right);
+            }
+            return expression;
+        }
+        private Expression Unary()
+        {
+            if(Match(TokenType.NOT, TokenType.MINUS))
+            {
+                Token Operator = Previous();
+                Expression right = Unary();
+                return new UnaryExpression(Operator, right);
+            }
+            return Literal();
+        }
+        private Expression Literal()
+        {
+            /*if (Match(TokenType.BOOLEAN, TokenType.NUMBER, TokenType.STRING))
+            {
+                return new LiteralExpression(Previous().Literal);
+            }
+            if (Match(TokenType.LEFT_PAREN))
+            {
+                Expression expression = Expression();
+                Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+                return new GroupingExpression(expression);
+            }
+            */
+            return Literal();
+        }
+
+
+        #region Auxiliar Methods
+        private bool Match(params TokenType[] types)
+        {
+            foreach (TokenType type in types)
+            {
+                if (Check(type))
+                {
+                    Advance();
+                    return true;
+                }
+            }
+            return false;
+        }
+        private bool Check(TokenType type)
+        {
+            if (IsAtEnd()) return false;
+            return Peek().Type == type;
+        }
+        private bool IsAtEnd()
+        {
+            return Peek().Type == TokenType.EOF;
+        }
+        private Token Advance()
+        {
+            if (!IsAtEnd()) currentPos++;
+            return Previous();
+        }
+        private Token Peek()
         {
             return tokens[currentPos];
         }
-
-        private new TokenType GetType()
+        private Token Previous()
         {
-            return tokens[currentPos].Type;
+            return tokens[currentPos - 1];
         }
-
-        private string GetLexeme()
-        {
-            return tokens[currentPos].Lexeme;
-        }
-        private int Advance()
-        {
-            if (GetType() != TokenType.EOF)
-                currentPos++;
-
-            return currentPos - 1;
-        }
-
-        
+        #endregion
     }
 }
