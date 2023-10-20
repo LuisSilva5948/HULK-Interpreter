@@ -17,10 +17,28 @@ namespace HULK_Interpreter
             currentPos = 0;
         }
 
-        public void Parse()
+        private Token GetToken()
         {
-
+            return tokens[currentPos];
         }
 
+        private new TokenType GetType()
+        {
+            return tokens[currentPos].Type;
+        }
+
+        private string GetLexeme()
+        {
+            return tokens[currentPos].Lexeme;
+        }
+        private int Advance()
+        {
+            if (GetType() != TokenType.EOF)
+                currentPos++;
+
+            return currentPos - 1;
+        }
+
+        
     }
 }
