@@ -39,7 +39,7 @@ namespace HULK_Interpreter
         MINUS,
         MULTIPLY,
         DIVIDE,
-        MODULE,
+        MODULUS,
         POWER,
         AND,
         OR,

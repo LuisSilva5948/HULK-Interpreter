@@ -13,6 +13,7 @@ namespace HULK_Interpreter
     {
         private readonly List<Token> tokens;
         private int currentPos;
+        public List<Error> errors { get; private set; }
 
         public Parser(List<Token> tokens)
         {
@@ -82,7 +83,7 @@ namespace HULK_Interpreter
         private Expression Factor()
         {
             Expression expression = Unary();
-            while (Match(TokenType.MULTIPLY, TokenType.DIVIDE))
+            while (Match(TokenType.MULTIPLY, TokenType.DIVIDE, TokenType.MODULUS))
             {
                 Token Operator = Previous();
                 Expression right = Unary();
@@ -102,7 +103,7 @@ namespace HULK_Interpreter
         }
         private Expression Literal()
         {
-            /*if (Match(TokenType.BOOLEAN, TokenType.NUMBER, TokenType.STRING))
+            if (Match(TokenType.BOOLEAN, TokenType.NUMBER, TokenType.STRING))
             {
                 return new LiteralExpression(Previous().Literal);
             }
@@ -112,7 +113,6 @@ namespace HULK_Interpreter
                 Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
                 return new GroupingExpression(expression);
             }
-            */
             return Literal();
         }
 
@@ -151,6 +151,14 @@ namespace HULK_Interpreter
         private Token Previous()
         {
             return tokens[currentPos - 1];
+        }
+        private Token Consume(TokenType type, string message)
+        {
+            if (Check(type))
+                return Advance();
+
+            errors.Add(new Error(ErrorType.SYNTAX, message));
+            return null;
         }
         #endregion
     }

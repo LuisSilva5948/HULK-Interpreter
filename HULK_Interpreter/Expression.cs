@@ -31,185 +31,52 @@ namespace HULK_Interpreter
                     return (double)left + (double)right;
                 case TokenType.MINUS:
                     return (double)left - (double)right;
-                default: 
+                default:
                     throw new Exception("Invalid operation.");
             }
         }
     }
-
-    
-    // Resto de las clases de expresiones...
-
-
-
-    /*public abstract class Expression
-    {
-        public abstract object Evaluate();
-    }
-
-    public class EqualityExpression : Expression
-    {
-        public Expression Left { get; private set; }
-        public Expression Right { get; private set; }
-        public string Operator { get; private set; }
-
-        public EqualityExpression(Expression left, Expression right, string _operator)
-        {
-            Left = left;
-            Right = right;
-            Operator = _operator;
-        }
-
-        public override object Evaluate()
-        {
-            var left = Left.Evaluate();
-            var right = Right.Evaluate();
-
-            switch (Operator)
-            {
-                case "==":
-                    return left == right;
-                case "!=":
-                    return left != right;
-                default:
-                    throw new Exception($"Invalid operator: {Operator}");
-            }
-        }
-    }
-
-    public class ComparisonExpression : Expression
-    {
-        public Expression Left { get; private set; }
-        public Expression Right { get; private set; }
-        public string Operator { get; private set; }
-
-        public ComparisonExpression(Expression left, Expression right, string @operator)
-        {
-            Left = left;
-            Right = right;
-            Operator = @operator;
-        }
-
-        public override object Evaluate()
-        {
-            var left = Left.Evaluate();
-            var right = Right.Evaluate();
-
-            switch (Operator)
-            {
-                case ">":
-                    return (double)left > (double)right;
-                case ">=":
-                    return (double)left >= (double)right;
-                case "<":
-                    return (double)left < (double)right;
-                case "<=":
-                    return (double)left <= (double)right;
-                default:
-                    throw new Exception($"Invalid operator: {Operator}");
-            }
-        }
-    }
-
-    public class TermExpression : Expression
-    {
-        public Expression Left { get; private set; }
-        public Expression Right { get; private set; }
-        public string Operator { get; private set; }
-
-        public TermExpression(Expression left, Expression right, string @operator)
-        {
-            Left = left;
-            Right = right;
-            Operator = @operator;
-        }
-
-        public override object Evaluate()
-        {
-            var left = (double)Left.Evaluate();
-            var right = (double)Right.Evaluate();
-
-            switch (Operator)
-            {
-                case "+":
-                    return left + right;
-                case "-":
-                    return left - right;
-                default:
-                    throw new Exception($"Invalid operator: {Operator}");
-            }
-        }
-    }
-
-    public class FactorExpression : Expression
-    {
-        public Expression Left { get; private set; }
-        public Expression Right { get; private set; }
-        public string Operator { get; private set; }
-
-        public FactorExpression(Expression left, Expression right, string @operator)
-        {
-            Left = left;
-            Right = right;
-            Operator = @operator;
-        }
-
-        public override object Evaluate()
-        {
-            var left = (double)Left.Evaluate();
-            var right = (double)Right.Evaluate();
-
-            switch (Operator)
-            {
-                case "*":
-                    return left * right;
-                case "/":
-                    return left / right;
-                default:
-                    throw new Exception($"Invalid operator: {Operator}");
-            }
-        }
-    }
-
     public class UnaryExpression : Expression
     {
-        public Expression Operand { get; private set; }
-        public string Operator { get; private set; }
-
-        public UnaryExpression(Expression operand, string _operator)
+        public UnaryExpression(Token _operator, Expression right)
         {
-            Operand = operand;
-            Operator = _operator;
+            this.Operator = _operator;
+            this.Right = right;
         }
+        public Token Operator { get; }
+        public Expression Right { get; }
 
-        public override object Evaluate()
+        public object Evaluate(object right)
         {
-            var operandValue = (double)Operand.Evaluate();
-
-            switch (Operator)
+            switch (Operator.Type)
             {
-                case "-":
-                    return -operandValue;
-                case "!":
-                    return !Convert.ToBoolean(operandValue);
+                case TokenType.NOT:
+                    return (bool)right;
+                case TokenType.MINUS:
+                    return -(double)right;
                 default:
-                    throw new Exception($"Invalid operator: {Operator}");
+                    throw new Exception("Invalid operation.");
             }
         }
     }
-
-    public class PrimaryExpression : Expression
+    public class LiteralExpression : Expression
     {
-        public object Value { get; private set; }
-
-        public PrimaryExpression(object value)
+        public object Value { get; }
+        public LiteralExpression(object value)
         {
             Value = value;
         }
-
-        public override object Evaluate()
+        public object Evaluate()
         {
             return Value;
         }
-    }*/
+    }
+    public class GroupingExpression : Expression
+    {
+        public Expression expression { get; }
+        public GroupingExpression(Expression expression)
+        {
+            this.expression = expression;
+        }
+    }
 }

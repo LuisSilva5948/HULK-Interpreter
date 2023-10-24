@@ -71,7 +71,7 @@ namespace HULK_Interpreter
                 case '+': AddToken(TokenType.PLUS); break;
                 case '*': AddToken(TokenType.MULTIPLY); break;
                 case '/': AddToken(TokenType.DIVIDE); break;
-                case '%': AddToken(TokenType.MODULE); break;
+                case '%': AddToken(TokenType.MODULUS); break;
                 case '^': AddToken(TokenType.POWER); break;
                 case '@': AddToken(TokenType.CONCAT); break;
                 case '&': AddToken(TokenType.AND); break;
