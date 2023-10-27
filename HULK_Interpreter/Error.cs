@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HULK_Interpreter
 {
-    public class Error
+    public class Error : Exception
     {
         public string message { get; private set; }
         public ErrorType errorType { get; private set; }
