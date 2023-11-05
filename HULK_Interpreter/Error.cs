@@ -10,14 +10,24 @@ namespace HULK_Interpreter
     {
         public string message { get; private set; }
         public ErrorType errorType { get; private set; }
-        public Error(ErrorType errorType, string message)
+        public Token token { get; private set; }
+        public Error(ErrorType errorType, string message): base(message)
         {
             this.errorType = errorType;
             this.message = message;
         }
-        public override string ToString()
+        public Error(ErrorType errorType, string message, Token token) : base(message)
         {
-            return $"! {errorType} ERROR. {message}";
+            this.errorType = errorType;
+            this.message = message;
+            this.token = token;
+        }
+        public string Report()
+        {
+            if (token == null)
+                return $"! {errorType} ERROR: {message}";
+            else
+                return $"! {errorType} ERROR: {message} at {token}";
         }
     }
     public enum ErrorType

@@ -10,11 +10,10 @@ namespace HULK_ConsoleInterface
             while (true) 
             {
                 Console.Write(">");
-                string line = Console.ReadLine().ToString();
-                if (line != null)
+                string line = Console.ReadLine();
+                if (line != null && line != "")
                 {
                     interpreter.Run(line);
-                    interpreter.hadError = false;
                 }
                 else Console.WriteLine("No input received.");
             }

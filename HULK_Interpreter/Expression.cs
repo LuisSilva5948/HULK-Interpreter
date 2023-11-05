@@ -71,12 +71,12 @@ namespace HULK_Interpreter
             return Value;
         }
     }
-    /*public class GroupingExpression : Expression
+    public class GroupingExpression : Expression
     {
         public Expression expression { get; }
         public GroupingExpression(Expression expression)
         {
             this.expression = expression;
         }
-    }*/
+    }
 }

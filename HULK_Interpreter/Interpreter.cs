@@ -8,11 +8,11 @@ namespace HULK_Interpreter
 {
     public class Interpreter
     {
-        public bool hadError;
+        //public bool hadError;
 
         public Interpreter() 
         {
-            hadError = false;
+            //hadError = false;
         }
         public void Run(string source)
         {
@@ -22,13 +22,6 @@ namespace HULK_Interpreter
                 Lexer lexer = new Lexer(source);
                 List<Token> tokens = lexer.ScanTokens();
 
-                if (lexer.errors.Count > 0)
-                {
-                    foreach (Error error in lexer.errors)
-                    {
-                        Console.WriteLine(error.ToString());
-                    }
-                }
                 //mostrando los tokens
                 foreach (Token token in tokens)
                 {
@@ -36,9 +29,9 @@ namespace HULK_Interpreter
                 }
                 Parser parser = new Parser(tokens);
             }
-            catch (Exception e)
+            catch (Error error)
             {
-                Console.WriteLine($"Error: {e}");
+                Console.WriteLine(error.Report());
                 return;
             }
             

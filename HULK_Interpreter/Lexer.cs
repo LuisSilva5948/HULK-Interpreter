@@ -9,7 +9,6 @@ namespace HULK_Interpreter
     {
         private readonly string source;
         private List<Token> tokens;
-        public List<Error> errors { get; private set; }
         private int startofLexeme;
         private int currentPos;
         //startofLexeme apunta al primer caracter en el lexema siendo escaneado,
@@ -33,7 +32,6 @@ namespace HULK_Interpreter
         public Lexer(string source)
         {
             this.source = source;
-            errors = new List<Error>();
             tokens = new List<Token>();
             startofLexeme = 0;
             currentPos = 0;
@@ -95,8 +93,7 @@ namespace HULK_Interpreter
                         ScanString();
                         break;
                     }
-                    errors.Add(new Error(ErrorType.LEXICAL, c + " is not a supported character."));
-                    break;
+                    throw new Error(ErrorType.LEXICAL, "Unexpected character");
             }
         }
 
@@ -139,8 +136,10 @@ namespace HULK_Interpreter
                 if (char.IsLetter(Peek())) isvalidnumber = false;
                 Advance();
             }
-            if (dotCounter > 1 || !isvalidnumber) errors.Add(new Error(ErrorType.LEXICAL, GetLexeme() + " is not a valid token."));
-            else AddToken(TokenType.NUMBER, double.Parse(GetLexeme()));
+            if (dotCounter > 1 || !isvalidnumber)
+                throw new Error(ErrorType.LEXICAL, "Invalid token at " + GetLexeme());
+            else 
+                AddToken(TokenType.NUMBER, double.Parse(GetLexeme()));
         }
         private void ScanString()
         {
@@ -161,13 +160,13 @@ namespace HULK_Interpreter
                 case "false":
                     AddToken(TokenType.BOOLEAN, bool.Parse(lexeme)); break;
                 case "PI": AddToken(TokenType.NUMBER, Math.PI); break;
-                case "e": AddToken(TokenType.NUMBER, Math.E); break;
+                case "E": AddToken(TokenType.NUMBER, Math.E); break;
                 case "sen": AddToken(TokenType.SEN, lexeme); break;
                 case "cos": AddToken(TokenType.COS, lexeme); break;
                 case "log": AddToken(TokenType.LOG, lexeme); break;
                 default:
                     if (keywords.ContainsKey(lexeme.ToLower()))
-                        errors.Add(new Error(ErrorType.LEXICAL, '\"' + lexeme + "\" is not a valid identifier."));
+                        throw new Error(ErrorType.LEXICAL, "Invalid identifier at " + lexeme);
                     else
                         AddToken(TokenType.IDENTIFIER, lexeme);
                     break;
@@ -184,16 +183,14 @@ namespace HULK_Interpreter
             }
             else if (IsAtEnd())
             {
-                errors.Add(new Error(ErrorType.LEXICAL, "( \" ) is not a valid token."));
-                return;
+                throw new Error(ErrorType.LEXICAL, "Unfinished string.");
             }
             int startIndex = currentPos;
             while (Peek() != '\"')
             {
                 if (IsAtEnd())
                 {
-                    errors.Add(new Error(ErrorType.LEXICAL, "( \" ) expected."));
-                    return;
+                    throw new Error(ErrorType.LEXICAL, "Unfinished string.");
                 }
                 Advance();
             }
