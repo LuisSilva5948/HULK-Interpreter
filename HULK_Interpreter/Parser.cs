@@ -13,7 +13,6 @@ namespace HULK_Interpreter
     {
         private readonly List<Token> tokens;
         private int currentPos;
-        public List<Error> errors { get; private set; }
 
         public Parser(List<Token> tokens)
         {
@@ -21,6 +20,10 @@ namespace HULK_Interpreter
             currentPos = 0;
         }
 
+        public Expression Parse()
+        {
+            return Expression();
+        }
         private Expression Expression()
         {
             return Logical();
@@ -39,7 +42,7 @@ namespace HULK_Interpreter
         private Expression Equality()
         {
             Expression expression = Comparison();
-            while(Match(TokenType.EQUAL_EQUAL, TokenType.NOT_EQUAL))
+            while(Match(TokenType.EQUAL, TokenType.NOT_EQUAL))
             {
                 Token Operator = Previous();
                 Expression right = Comparison();
@@ -82,12 +85,23 @@ namespace HULK_Interpreter
         }
         private Expression Factor()
         {
-            Expression expression = Unary();
+            Expression expression = Power();
             while (Match(TokenType.MULTIPLY, TokenType.DIVIDE, TokenType.MODULUS))
             {
                 Token Operator = Previous();
-                Expression right = Unary();
+                Expression right = Power();
                 expression = new BinaryExpression(expression, Operator, right);
+            }
+            return expression;
+        }
+        private Expression Power()
+        {
+            Expression expression = Unary();
+            if (Match(TokenType.POWER))
+            {
+                Token Operator = Previous();
+                Expression right = Unary();
+                return new BinaryExpression(expression, Operator, right);
             }
             return expression;
         }
@@ -110,14 +124,12 @@ namespace HULK_Interpreter
             if (Match(TokenType.LEFT_PAREN))
             {
                 Expression expression = Expression();
-                Consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+                Consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
                 return new GroupingExpression(expression);
             }
-            return Literal();
+            throw new Error(ErrorType.SYNTAX, "Expression expected.", Peek());
         }
 
-
-        #region Auxiliar Methods
         private bool Match(params TokenType[] types)
         {
             foreach (TokenType type in types)
@@ -157,9 +169,7 @@ namespace HULK_Interpreter
             if (Check(type))
                 return Advance();
 
-            errors.Add(new Error(ErrorType.SYNTAX, message));
-            return null;
+            throw new Error(ErrorType.SYNTAX, message);
         }
-        #endregion
     }
 }

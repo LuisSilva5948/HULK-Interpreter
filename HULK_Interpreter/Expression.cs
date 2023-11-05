@@ -12,10 +12,10 @@ namespace HULK_Interpreter
 
     public class BinaryExpression : Expression
     {
-        public BinaryExpression(Expression left, Token _operator, Expression right)
+        public BinaryExpression(Expression left, Token Operator, Expression right)
         {
             this.Left = left;
-            this.Operator = _operator;
+            this.Operator = Operator;
             this.Right = right;
         }
 
@@ -32,15 +32,15 @@ namespace HULK_Interpreter
                 case TokenType.MINUS:
                     return (double)left - (double)right;
                 default:
-                    throw new Exception("Invalid operation.");
+                    throw new Error(ErrorType.SEMANTIC, "Invalid operation.");
             }
         }
     }
     public class UnaryExpression : Expression
     {
-        public UnaryExpression(Token _operator, Expression right)
+        public UnaryExpression(Token Operator, Expression right)
         {
-            this.Operator = _operator;
+            this.Operator = Operator;
             this.Right = right;
         }
         public Token Operator { get; }
@@ -51,11 +51,11 @@ namespace HULK_Interpreter
             switch (Operator.Type)
             {
                 case TokenType.NOT:
-                    return (bool)right;
+                    return !(bool)right;
                 case TokenType.MINUS:
                     return -(double)right;
                 default:
-                    throw new Exception("Invalid operation.");
+                    throw new Error(ErrorType.SEMANTIC, "Invalid operation.");
             }
         }
     }
@@ -77,6 +77,10 @@ namespace HULK_Interpreter
         public GroupingExpression(Expression expression)
         {
             this.expression = expression;
+        }
+        public object Evaluate()
+        {
+            return expression;
         }
     }
 }

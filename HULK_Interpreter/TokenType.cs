@@ -46,7 +46,7 @@ namespace HULK_Interpreter
         NOT,
         NOT_EQUAL,
         EQUAL,
-        EQUAL_EQUAL,
+        ASSING,
         GREATER,
         GREATER_EQUAL,
         LESS,

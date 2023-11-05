@@ -23,11 +23,15 @@ namespace HULK_Interpreter
                 List<Token> tokens = lexer.ScanTokens();
 
                 //mostrando los tokens
-                foreach (Token token in tokens)
+                /*foreach (Token token in tokens)
                 {
                     Console.WriteLine(token.ToString());
-                }
+                }*/
                 Parser parser = new Parser(tokens);
+                Expression AST = parser.Parse();
+                Evaluator evaluator = new Evaluator(AST);
+                object result = evaluator.EvaluateExpression(AST);
+                Console.WriteLine(result);
             }
             catch (Error error)
             {

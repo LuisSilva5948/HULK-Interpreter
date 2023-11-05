@@ -11,8 +11,6 @@ namespace HULK_Interpreter
         private List<Token> tokens;
         private int startofLexeme;
         private int currentPos;
-        //startofLexeme apunta al primer caracter en el lexema siendo escaneado,
-        //current apunta al caracter actualmente siendo considerado.
         private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>{
             {"let", TokenType.LET},
             {"in", TokenType.IN},
@@ -37,6 +35,9 @@ namespace HULK_Interpreter
             currentPos = 0;
         }
 
+        /// <summary>
+        /// Scans the source code and generates a list of tokens.
+        /// </summary>
         public List<Token> ScanTokens()
         {
             while (!IsAtEnd())
@@ -47,13 +48,14 @@ namespace HULK_Interpreter
             tokens.Add(new Token(TokenType.EOF, "EOF", null));
             return tokens;
         }
-
+        /// <summary>
+        /// Scans a single token based on the current character.
+        /// </summary>
         private void ScanToken()
         {
             char c = Advance();
             switch (c)
             {
-                case '\0':
                 //ignorar espacios en blanco
                 case ' ':
                 case '\r':
@@ -79,8 +81,8 @@ namespace HULK_Interpreter
                 case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '=':
                     if (Match('>')) AddToken(TokenType.ARROW);
-                    else AddToken(Match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
-                case '\"': ScanStringValue(); break;
+                    else AddToken(Match('=') ? TokenType.ASSING : TokenType.EQUAL); break;
+                case '\"': ScanString(); break;
                 //buscar numero, string o devolver error
                 default:
                     if (char.IsDigit(c))
@@ -90,42 +92,15 @@ namespace HULK_Interpreter
                     }
                     if (char.IsLetter(c) || c == '_')
                     {
-                        ScanString();
+                        ScanIdentifier();
                         break;
                     }
-                    throw new Error(ErrorType.LEXICAL, "Unexpected character");
+                    throw new Error(ErrorType.LEXICAL, $"Character '{c}' is not supported.");
             }
         }
-
-        private void AddToken(TokenType tokentype)
-        {
-            AddToken(tokentype, null);
-        }
-        private void AddToken(TokenType tokentype, Object literal)
-        {
-            string lexeme = GetLexeme();
-            tokens.Add(new Token(tokentype, lexeme, literal));
-        }
-
-        //comprobador de si matchea el caracter actual con el que espera que le siga, si matchea avanza
-        private bool Match(char expected)
-        {
-            if (IsAtEnd()) return false;
-            if (source[currentPos] != expected) return false;
-            currentPos++;
-            return true;
-        }
-        //retorna el char actual
-        private char Peek()
-        {
-            if (IsAtEnd()) return '\0';
-            return source[currentPos];
-        }
-
-        private bool IsAtEnd() => currentPos >= source.Length;
-        private char Advance() => source[currentPos++];
-        private string GetLexeme() => source.Substring(startofLexeme, currentPos - startofLexeme);
-
+        /// <summary>
+        /// Scans a number token.
+        /// </summary>
         private void ScanNumber()
         {
             int dotCounter = 0;
@@ -137,11 +112,14 @@ namespace HULK_Interpreter
                 Advance();
             }
             if (dotCounter > 1 || !isvalidnumber)
-                throw new Error(ErrorType.LEXICAL, "Invalid token at " + GetLexeme());
+                throw new Error(ErrorType.LEXICAL, $"Invalid token at '{GetLexeme()}'");
             else 
                 AddToken(TokenType.NUMBER, double.Parse(GetLexeme()));
         }
-        private void ScanString()
+        /// <summary>
+        ///  Scans an identifier token.
+        /// </summary>
+        private void ScanIdentifier()
         {
             while (char.IsLetterOrDigit(Peek()) || Peek() == '_')
             {
@@ -166,26 +144,17 @@ namespace HULK_Interpreter
                 case "log": AddToken(TokenType.LOG, lexeme); break;
                 default:
                     if (keywords.ContainsKey(lexeme.ToLower()))
-                        throw new Error(ErrorType.LEXICAL, "Invalid identifier at " + lexeme);
+                        throw new Error(ErrorType.LEXICAL, $"Invalid identifier at '{lexeme}'.");
                     else
                         AddToken(TokenType.IDENTIFIER, lexeme);
                     break;
             }
         }
-        private void ScanStringValue()
+        /// <summary>
+        /// Scans a string token.
+        /// </summary>
+        private void ScanString()
         {
-            //tratando de no llevarme la comilla como parte del
-            if (Peek() == '\"')
-            {
-                Advance();
-                AddToken(TokenType.STRING, "");
-                return;
-            }
-            else if (IsAtEnd())
-            {
-                throw new Error(ErrorType.LEXICAL, "Unfinished string.");
-            }
-            int startIndex = currentPos;
             while (Peek() != '\"')
             {
                 if (IsAtEnd())
@@ -194,12 +163,67 @@ namespace HULK_Interpreter
                 }
                 Advance();
             }
-            if (Peek() == '\"')
-                Advance();
-            int endIndex = currentPos - 1;
-            string literal = source.Substring(startIndex, endIndex - startIndex);
+            Advance();
+            //ignore ""
+            string literal = GetLexeme();
+            literal = literal.Substring(1, literal.Length - 2);
             AddToken(TokenType.STRING, literal);
         }
+        /// <summary>
+        /// Adds a token with the specified token type to the token list.
+        /// </summary>
+        private void AddToken(TokenType tokentype)
+        {
+            AddToken(tokentype, null);
+        }
+        /// <summary>
+        /// Adds a token with the specified token type and literal value to the token list.
+        /// </summary>
+        private void AddToken(TokenType tokentype, Object literal)
+        {
+            string lexeme = GetLexeme();
+            tokens.Add(new Token(tokentype, lexeme, literal));
+        }
+        /// <summary>
+        /// Checks if the current character matches the expected character.
+        /// </summary>
+        private bool Match(char expected)
+        {
+            if (IsAtEnd()) return false;
+            if (source[currentPos] != expected) return false;
+            Advance();
+            return true;
+        }
+        /// <summary>
+        /// Returns the current character without advancing to the next character.
+        /// </summary>
+        private char Peek()
+        {
+            if (IsAtEnd()) return '\0';
+            return source[currentPos];
+        }
+        /// <summary>
+        /// Returns true if the lexer has reached the end of the source code.
+        /// </summary>
+        private bool IsAtEnd() 
+        {
+            return currentPos >= source.Length;
+        }
+        /// <summary>
+        /// Returns the current character and advances to the next character.
+        /// </summary>
+        /// <returns></returns>
+        private char Advance()
+        {
+            return source[currentPos++];
+        }
+        /// <summary>
+        /// Retrieves the lexeme of the token from the source code.
+        /// </summary>
+        /// <returns></returns>
+        private string GetLexeme()
+        {
+            return source.Substring(startofLexeme, currentPos - startofLexeme);
+        }
     }
-
 }
