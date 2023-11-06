@@ -9,14 +9,13 @@ namespace HULK_Interpreter
     public abstract class Expression
     {
     }
-
     public class BinaryExpression : Expression
     {
-        public BinaryExpression(Expression left, Token Operator, Expression right)
+        public BinaryExpression(Expression left, Token op, Expression right)
         {
-            this.Left = left;
-            this.Operator = Operator;
-            this.Right = right;
+            Left = left;
+            Operator = op;
+            Right = right;
         }
 
         public Expression Left { get; }
@@ -31,17 +30,23 @@ namespace HULK_Interpreter
                     return (double)left + (double)right;
                 case TokenType.MINUS:
                     return (double)left - (double)right;
+                case TokenType.MULTIPLY:
+                    return (double)left * (double)right;
+                case TokenType.DIVIDE:
+                    return (double)left / (double)right;
+                case TokenType.MODULUS:
+                    return (double)left % (double)right;
                 default:
-                    throw new Error(ErrorType.SEMANTIC, "Invalid operation.");
+                    throw new Error(ErrorType.SEMANTIC, "Invalid binary operation.");
             }
         }
     }
     public class UnaryExpression : Expression
     {
-        public UnaryExpression(Token Operator, Expression right)
+        public UnaryExpression(Token op, Expression right)
         {
-            this.Operator = Operator;
-            this.Right = right;
+            Operator = op;
+            Right = right;
         }
         public Token Operator { get; }
         public Expression Right { get; }
@@ -55,7 +60,7 @@ namespace HULK_Interpreter
                 case TokenType.MINUS:
                     return -(double)right;
                 default:
-                    throw new Error(ErrorType.SEMANTIC, "Invalid operation.");
+                    throw new Error(ErrorType.SEMANTIC, "Invalid unary operation.");
             }
         }
     }
@@ -73,14 +78,14 @@ namespace HULK_Interpreter
     }
     public class GroupingExpression : Expression
     {
-        public Expression expression { get; }
+        public Expression Expression { get; }
         public GroupingExpression(Expression expression)
         {
-            this.expression = expression;
+            Expression = expression;
         }
         public object Evaluate()
         {
-            return expression;
+            return Expression;
         }
     }
 }
