@@ -81,7 +81,7 @@ namespace HULK_Interpreter
                 case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '=':
                     if (Match('>')) AddToken(TokenType.ARROW);
-                    else AddToken(Match('=') ? TokenType.ASSING : TokenType.EQUAL); break;
+                    else AddToken(Match('=') ? TokenType.EQUAL : TokenType.ASSING); break;
                 case '\"': ScanString(); break;
                 //buscar numero, string o devolver error
                 default:

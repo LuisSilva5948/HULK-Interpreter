@@ -30,7 +30,7 @@ namespace HULK_Interpreter
                 Parser parser = new Parser(tokens);
                 Expression AST = parser.Parse();
                 Evaluator evaluator = new Evaluator(AST);
-                object result = evaluator.EvaluateExpression(AST);
+                object result = evaluator.Evaluate(AST);
                 Console.WriteLine(result);
             }
             catch (Error error)
