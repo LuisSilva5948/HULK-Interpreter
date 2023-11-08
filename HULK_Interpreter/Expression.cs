@@ -11,26 +11,26 @@ namespace HULK_Interpreter
     }
     public class BinaryExpression : Expression
     {
+        public Expression Left { get; }
+        public Token Operator { get; }
+        public Expression Right { get; }
         public BinaryExpression(Expression left, Token op, Expression right)
         {
             Left = left;
             Operator = op;
             Right = right;
         }
-        public Expression Left { get; }
-        public Token Operator { get; }
-        public Expression Right { get; }
     }
 
     public class UnaryExpression : Expression
     {
+        public Token Operator { get; }
+        public Expression Right { get; }
         public UnaryExpression(Token op, Expression right)
         {
             Operator = op;
             Right = right;
         }
-        public Token Operator { get; }
-        public Expression Right { get; }
     }
 
     public class LiteralExpression : Expression

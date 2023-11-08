@@ -27,7 +27,7 @@ namespace HULK_Interpreter
             if (token == null)
                 return $"! {errorType} ERROR: {message}";
             else
-                return $"! {errorType} ERROR: {message} at {token}";
+                return $"! {errorType} ERROR: {message} at {token.Lexeme}";
         }
     }
     public enum ErrorType

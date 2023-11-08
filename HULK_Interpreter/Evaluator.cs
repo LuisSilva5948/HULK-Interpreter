@@ -41,38 +41,55 @@ namespace HULK_Interpreter
             switch (Operator.Type)
             {
                 case TokenType.PLUS:
+                    CheckNumbers(Operator, left, right);
                     return (double)left + (double)right;
                 case TokenType.MINUS:
+                    CheckNumbers(Operator, left, right);
                     return (double)left - (double)right;
                 case TokenType.MULTIPLY:
+                    CheckNumbers(Operator, left, right);
                     return (double)left * (double)right;
                 case TokenType.DIVIDE:
+                    CheckNumbers(Operator, left, right);
                     return (double)left / (double)right;
                 case TokenType.MODULUS:
+                    CheckNumbers(Operator, left, right);
                     return (double)left % (double)right;
                 case TokenType.POWER:
+                    CheckNumbers(Operator, left, right);
                     return Math.Pow((double)left, (double)right);
 
-                case TokenType.EQUAL:
-                    return (double)left == (double)right;
                 case TokenType.GREATER:
+                    CheckNumbers(Operator, left, right);
                     return (double)left > (double)right;
                 case TokenType.GREATER_EQUAL:
+                    CheckNumbers(Operator, left, right);
                     return (double)left >= (double)right;
                 case TokenType.LESS:
+                    CheckNumbers(Operator, left, right);
                     return (double)left < (double)right;
                 case TokenType.LESS_EQUAL:
+                    CheckNumbers(Operator, left, right);
                     return (double)left <= (double)right;
 
+                case TokenType.EQUAL:
+                case TokenType.NOT_EQUAL:
+                    return IsEqual(left, right);
+
                 case TokenType.AND:
+                    CheckBooleans(Operator, left, right);
                     return (bool)left && (bool)right;
                 case TokenType.OR:
+                    CheckBooleans(Operator, left, right);
                     return (bool)left || (bool)right;
 
                 case TokenType.CONCAT:
-                    return left.ToString() + right.ToString();
+                    string leftstr = IsBoolean(left) ? left.ToString().ToLower() : left.ToString();
+                    string rightstr = IsBoolean(right) ? right.ToString().ToLower() : right.ToString();
+                    return leftstr + rightstr;
+
                 default:
-                    throw new Error(ErrorType.SEMANTIC, "Invalid binary operation.");
+                    return null;
             }
         }
         public object EvaluateUnary(Token Operator, object right)
@@ -80,12 +97,58 @@ namespace HULK_Interpreter
             switch (Operator.Type)
             {
                 case TokenType.NOT:
+                    CheckBoolean(Operator, right);
                     return !(bool)right;
                 case TokenType.MINUS:
+                    CheckNumber(Operator, right);
                     return -(double)right;
                 default:
-                    throw new Error(ErrorType.SEMANTIC, "Invalid unary operation.");
+                    return null;
             }
+        }
+        public void CheckBoolean(Token Operator, object right)
+        {
+            if (IsBoolean(right)) return;
+            throw new Error(ErrorType.SEMANTIC, "Operand must be Boolean", Operator);
+        }
+        public void CheckBooleans(Token Operator, object left, object right)
+        {
+            if (IsBoolean(left, right)) return;
+            throw new Error(ErrorType.SEMANTIC, "Operands must be Boolean", Operator);
+        }
+        public void CheckNumber(Token Operator, object right)
+        {
+            if (IsNumber(right)) return;
+            throw new Error(ErrorType.SEMANTIC, "Operand must be Number", Operator);
+        }
+        public void CheckNumbers(Token Operator, object left, object right)
+        {
+            if (IsNumber(left, right)) return;
+            throw new Error(ErrorType.SEMANTIC, "Operands must be Numbers", Operator);
+        }
+        public bool IsNumber(params object[] operands)
+        {
+            foreach (object operand in operands)
+            {
+                if (operand is not double)
+                    return false;
+            }
+            return true;
+        }
+        public bool IsBoolean(params object[] operands)
+        {
+            foreach (object operand in operands)
+            {
+                if (operand is not bool)
+                    return false;
+            }
+            return true;
+        }
+        public bool IsEqual(object left, object right)
+        {
+            if (left == null && right == null)
+                return true;
+            return left == null? false : left.Equals(right);
         }
     }
 }
