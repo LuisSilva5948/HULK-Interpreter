@@ -28,7 +28,7 @@ namespace HULK_Interpreter
                     Console.WriteLine(token.ToString());
                 }*/
                 Parser parser = new Parser(tokens);
-                Expression AST = parser.Parse();
+                Statement AST = parser.Parse();
                 Evaluator evaluator = new Evaluator(AST);
                 object result = evaluator.Evaluate(AST);
                 Console.WriteLine(result);

@@ -41,12 +41,24 @@ namespace HULK_Interpreter
             Value = value;
         }
     }
+
     public class GroupingExpression : Expression
     {
         public Expression Expression { get; }
         public GroupingExpression(Expression expression)
         {
             Expression = expression;
+        }
+    }
+
+    public class AssignExpression : Expression
+    {
+        public Token ID { get; }
+        public Expression Value { get; }
+        public AssignExpression(Token id, Expression value)
+        {
+            ID = id;
+            Value = value;
         }
     }
 }

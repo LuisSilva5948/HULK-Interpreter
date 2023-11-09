@@ -10,11 +10,33 @@ namespace HULK_Interpreter
 {
     internal class Evaluator
     {
-        private Expression AST;
-        public Evaluator(Expression AST)
+        private Statement AST;
+        public Evaluator(Statement AST)
         {
             this.AST = AST;
         }
+        public object Evaluate(Statement statement)
+        {
+            if (statement is PrintStatement printStatement)
+            {
+                return Evaluate(printStatement.Statement);
+            }
+            else if (statement is ExpressionStatement expressionStatement)
+            {
+                return Evaluate(expressionStatement.Expression);
+            }
+            else if (statement is IfStatement ifStatement)
+            {
+                object condition = Evaluate(ifStatement.Condition);
+                if (!IsBoolean(condition))
+                {
+                    throw new Error(ErrorType.SEMANTIC, "Condition in 'If-Else' statement must be an expression that returns boolean.");
+                }
+                return (bool)condition? Evaluate(ifStatement.ThenBranch) : Evaluate(ifStatement.ElseBranch);
+            }
+            return null;
+        }
+
         public object Evaluate(Expression expression)
         {
             if (expression is LiteralExpression literal)
@@ -51,14 +73,15 @@ namespace HULK_Interpreter
                     return (double)left * (double)right;
                 case TokenType.DIVIDE:
                     CheckNumbers(Operator, left, right);
-                    return (double)left / (double)right;
+                    if ((double)right != 0)
+                        return (double)left / (double)right;
+                    throw new Error(ErrorType.SEMANTIC, "Division by zero is undefined.");
                 case TokenType.MODULUS:
                     CheckNumbers(Operator, left, right);
                     return (double)left % (double)right;
                 case TokenType.POWER:
                     CheckNumbers(Operator, left, right);
                     return Math.Pow((double)left, (double)right);
-
                 case TokenType.GREATER:
                     CheckNumbers(Operator, left, right);
                     return (double)left > (double)right;

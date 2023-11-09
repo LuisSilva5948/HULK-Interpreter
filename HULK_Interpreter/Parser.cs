@@ -19,11 +19,49 @@ namespace HULK_Interpreter
             this.tokens = tokens;
             currentPos = 0;
         }
-
-        public Expression Parse()
+        public Statement Parse()
         {
-            return Expression();
+            Statement statement = Statement();
+            Consume(TokenType.SEMICOLON, "Expected ';' after statement.");
+            return statement;
         }
+        public Statement Statement()
+        {
+            Statement statement;
+            if(Match(TokenType.PRINT))
+            {
+                Consume(TokenType.LEFT_PAREN, "Expected '('.");
+                statement = PrintStatement();
+                Consume(TokenType.RIGHT_PAREN, "Expected ')'.");
+            }
+            else if (Match(TokenType.IF))
+            {
+                Consume(TokenType.LEFT_PAREN, "Expected '('.");
+                statement = IfStatement();
+            }
+            else statement = ExpressionStatement();
+            return statement;
+        }
+        public Statement PrintStatement()
+        {
+            Statement statement = Statement();
+            return new PrintStatement(statement);
+        }
+        public Statement ExpressionStatement()
+        {
+            Expression expression = Expression();
+            return new ExpressionStatement(expression);
+        }
+        public Statement IfStatement()
+        {
+            Expression condition = Expression();
+            Consume(TokenType.RIGHT_PAREN, "Expected ')'.");
+            Statement thenBranch = Statement();
+            Consume(TokenType.ELSE, "Expected 'else' at If-Else statement.");
+            Statement elseBranch = Statement();
+            return new IfStatement(condition, thenBranch, elseBranch);
+        }
+
         private Expression Expression()
         {
             return Logical();
@@ -127,7 +165,7 @@ namespace HULK_Interpreter
                 Consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
                 return new GroupingExpression(expression);
             }
-            throw new Error(ErrorType.SYNTAX, "Expression expected.", Peek());
+            throw new Error(ErrorType.SYNTAX, "Expression expected after", Peek());
         }
 
         private bool Match(params TokenType[] types)
