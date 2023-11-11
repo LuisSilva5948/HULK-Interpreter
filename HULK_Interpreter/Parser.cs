@@ -19,69 +19,13 @@ namespace HULK_Interpreter
             this.tokens = tokens;
             currentPos = 0;
         }
-        public Statement Parse()
-        {
-            Statement statement = Statement();
-            Consume(TokenType.SEMICOLON, "Expected ';' after statement.");
-            return statement;
-        }
-        public Statement Statement()
-        {
-            Statement statement;
-            if(Match(TokenType.PRINT))
-            {
-                Consume(TokenType.LEFT_PAREN, "Expected '('.");
-                statement = PrintStatement();
-                Consume(TokenType.RIGHT_PAREN, "Expected ')'.");
-            }
-            else if (Match(TokenType.IF))
-            {
-                Consume(TokenType.LEFT_PAREN, "Expected '('.");
-                statement = IfStatement();
-            }
-            else if (Match(TokenType.LET))
-            {
-                statement = LetStatement();
-            }
-            else statement = ExpressionStatement();
-            return statement;
-        }
-        public Statement PrintStatement()
-        {
-            Statement statement = Statement();
-            return new PrintStatement(statement);
-        }
-        public Statement ExpressionStatement()
+        public Expression Parse()
         {
             Expression expression = Expression();
-            return new ExpressionStatement(expression);
+            Consume(TokenType.SEMICOLON, "Expected ';' after expression.");
+            return expression;
         }
-        public Statement IfStatement()
-        {
-            Expression condition = Expression();
-            Consume(TokenType.RIGHT_PAREN, "Expected ')'.");
-            Statement thenBranch = Statement();
-            Consume(TokenType.ELSE, "Expected 'else' at If-Else statement.");
-            Statement elseBranch = Statement();
-            return new IfStatement(condition, thenBranch, elseBranch);
-        }
-        public Statement LetStatement()
-        {
-            List<AssignExpression> assignments = new List<AssignExpression>();
-            do
-            {
-                Token id = Consume(TokenType.IDENTIFIER, "Expected a variable name.");
-                Consume(TokenType.ASSING, "Expected '='.");
-                Expression value = Expression();
-                assignments.Add(new AssignExpression(id, value));
-            }
-            while (Match(TokenType.COMMA));
-
-            Consume(TokenType.IN, "Expected 'in' at Let-In statement.");
-            Statement body = Statement();
-            return new LetStatement(assignments, body);
-        }
-
+        
         private Expression Expression()
         {
             return Logical();
@@ -190,7 +134,53 @@ namespace HULK_Interpreter
                 //if is not an call to a function
                 return new VariableExpression(Previous());
             }
+            if (Match(TokenType.PRINT))
+            {
+                Consume(TokenType.LEFT_PAREN, "Expected '('.");
+                Expression expression = PrintStatement();
+                Consume(TokenType.RIGHT_PAREN, "Expected ')'.");
+                return expression;
+            }
+            else if (Match(TokenType.IF))
+            {
+                Consume(TokenType.LEFT_PAREN, "Expected '('.");
+                return IfElseExpression();
+            }
+            else if (Match(TokenType.LET))
+            {
+                return LetInExpression();
+            }
             throw new Error(ErrorType.SYNTAX, "Expression expected.");
+        }
+        public Expression PrintStatement()
+        {
+            Expression statement = Expression();
+            return new PrintStatement(statement);
+        }
+        public Expression IfElseExpression()
+        {
+            Expression condition = Expression();
+            Consume(TokenType.RIGHT_PAREN, "Expected ')'.");
+            Expression thenBranch = Expression();
+            Consume(TokenType.ELSE, "Expected 'else' at If-Else statement.");
+            Expression elseBranch = Expression();
+            return new IfElseStatement(condition, thenBranch, elseBranch);
+        }
+        public Expression LetInExpression()
+        {
+            List<AssignExpression> assignments = new List<AssignExpression>();
+            do
+            {
+                Token id = Consume(TokenType.IDENTIFIER, "Expected a variable name.");
+                Consume(TokenType.ASSING, "Expected '='.");
+                Expression value = Expression();
+                assignments.Add(new AssignExpression(id, value));
+            }
+            while (Match(TokenType.COMMA));
+
+            Consume(TokenType.IN, "Expected 'in' at Let-In expression.");
+            Expression body = Expression();
+            return new LetInExpression(assignments, body);
         }
 
         private bool Match(params TokenType[] types)
