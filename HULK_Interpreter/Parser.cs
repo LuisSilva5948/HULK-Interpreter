@@ -162,7 +162,7 @@ namespace HULK_Interpreter
             Expression condition = Expression();
             Consume(TokenType.RIGHT_PAREN, "Expected ')'.");
             Expression thenBranch = Expression();
-            Consume(TokenType.ELSE, "Expected 'else' at If-Else statement.");
+            Consume(TokenType.ELSE, "Expected 'else' at 'If-Else' expression.");
             Expression elseBranch = Expression();
             return new IfElseStatement(condition, thenBranch, elseBranch);
         }
@@ -178,7 +178,7 @@ namespace HULK_Interpreter
             }
             while (Match(TokenType.COMMA));
 
-            Consume(TokenType.IN, "Expected 'in' at Let-In expression.");
+            Consume(TokenType.IN, "Expected 'in' at 'Let-In' expression.");
             Expression body = Expression();
             return new LetInExpression(assignments, body);
         }
