@@ -104,9 +104,7 @@ namespace HULK_Interpreter
                     return (bool)left || (bool)right;
 
                 case TokenType.CONCAT:
-                    string leftstr = IsBoolean(left) ? left.ToString().ToLower() : left.ToString();
-                    string rightstr = IsBoolean(right) ? right.ToString().ToLower() : right.ToString();
-                    return leftstr + rightstr;
+                    return left.ToString() + right.ToString();
 
                 default:
                     return null;
