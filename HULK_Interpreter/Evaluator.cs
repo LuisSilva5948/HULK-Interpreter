@@ -39,7 +39,7 @@ namespace HULK_Interpreter
             {
                 object condition = Evaluate(ifelseStatement.Condition);
                 if (!IsBoolean(condition))
-                    throw new Error(ErrorType.SEMANTIC, "Condition in 'If-Else' expression must be an boolean expression.");
+                    throw new Error(ErrorType.SEMANTIC, "Condition in 'If-Else' expression must be a boolean expression.");
                 return (bool)condition ? Evaluate(ifelseStatement.ThenBranch) : Evaluate(ifelseStatement.ElseBranch);
             }
 
