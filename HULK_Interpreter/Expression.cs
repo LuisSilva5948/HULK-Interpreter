@@ -61,4 +61,12 @@ namespace HULK_Interpreter
             Value = value;
         }
     }
+    public class VariableExpression : Expression
+    {
+        public Token ID { get; }
+        public VariableExpression(Token id)
+        {
+            ID = id;
+        }
+    }
 }

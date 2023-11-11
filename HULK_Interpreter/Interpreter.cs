@@ -8,17 +8,14 @@ namespace HULK_Interpreter
 {
     public class Interpreter
     {
-        //public bool hadError;
 
         public Interpreter() 
         {
-            //hadError = false;
         }
         public void Run(string source)
         {
             try
             {
-                //tokenizando
                 Lexer lexer = new Lexer(source);
                 List<Token> tokens = lexer.ScanTokens();
 

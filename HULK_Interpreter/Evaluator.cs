@@ -11,50 +11,57 @@ namespace HULK_Interpreter
     internal class Evaluator
     {
         private Statement AST;
+        private Dictionary<string, object> values;
         public Evaluator(Statement AST)
         {
             this.AST = AST;
+            values = new Dictionary<string, object>();
         }
         public object Evaluate(Statement statement)
         {
             if (statement is PrintStatement printStatement)
-            {
                 return Evaluate(printStatement.Statement);
-            }
+            
             else if (statement is ExpressionStatement expressionStatement)
-            {
                 return Evaluate(expressionStatement.Expression);
-            }
+            
             else if (statement is IfStatement ifStatement)
             {
                 object condition = Evaluate(ifStatement.Condition);
                 if (!IsBoolean(condition))
-                {
-                    throw new Error(ErrorType.SEMANTIC, "Condition in 'If-Else' statement must be an expression that returns boolean.");
-                }
-                return (bool)condition? Evaluate(ifStatement.ThenBranch) : Evaluate(ifStatement.ElseBranch);
+                    throw new Error(ErrorType.SEMANTIC, "Condition in 'If-Else' statement must be an boolean expression.");
+                return (bool)condition ? Evaluate(ifStatement.ThenBranch) : Evaluate(ifStatement.ElseBranch);
             }
+
+            else if (statement is LetStatement letStatement)
+            {
+                foreach (AssignExpression assignment in letStatement.Assignments)
+                {
+                    values[assignment.ID.Lexeme] = Evaluate(assignment.Value);
+                }
+                return Evaluate(letStatement.Body);
+            }
+
             return null;
         }
 
         public object Evaluate(Expression expression)
         {
             if (expression is LiteralExpression literal)
-            {
                 return literal.Value;
-            }
+
             else if (expression is UnaryExpression unary)
-            {
                 return EvaluateUnary(unary.Operator, Evaluate(unary.Right));
-            }
+
             else if (expression is BinaryExpression binary)
-            {
                 return EvaluateBinary(Evaluate(binary.Left), binary.Operator, Evaluate(binary.Right));
-            }
+
             else if (expression is GroupingExpression grouping)
-            {
                 return Evaluate(grouping.Expression);
-            }
+
+            else if (expression is VariableExpression variable)
+                return EvaluateVariable(variable.ID);
+
             else return null;
         }
 
@@ -129,6 +136,14 @@ namespace HULK_Interpreter
                     return null;
             }
         }
+        public object EvaluateVariable(Token id)
+        {
+            string name = id.Lexeme;
+            if (values.ContainsKey(name))
+                return values[name];
+            throw new Error(ErrorType.SEMANTIC, $"Value of '{name}' wasn't initialized.");
+        }
+
         public void CheckBoolean(Token Operator, object right)
         {
             if (IsBoolean(right)) return;

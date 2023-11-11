@@ -39,6 +39,10 @@ namespace HULK_Interpreter
                 Consume(TokenType.LEFT_PAREN, "Expected '('.");
                 statement = IfStatement();
             }
+            else if (Match(TokenType.LET))
+            {
+                statement = LetStatement();
+            }
             else statement = ExpressionStatement();
             return statement;
         }
@@ -60,6 +64,22 @@ namespace HULK_Interpreter
             Consume(TokenType.ELSE, "Expected 'else' at If-Else statement.");
             Statement elseBranch = Statement();
             return new IfStatement(condition, thenBranch, elseBranch);
+        }
+        public Statement LetStatement()
+        {
+            List<AssignExpression> assignments = new List<AssignExpression>();
+            do
+            {
+                Token id = Consume(TokenType.IDENTIFIER, "Expected a variable name.");
+                Consume(TokenType.ASSING, "Expected '='.");
+                Expression value = Expression();
+                assignments.Add(new AssignExpression(id, value));
+            }
+            while (Match(TokenType.COMMA));
+
+            Consume(TokenType.IN, "Expected 'in' at Let-In statement.");
+            Statement body = Statement();
+            return new LetStatement(assignments, body);
         }
 
         private Expression Expression()
@@ -165,7 +185,12 @@ namespace HULK_Interpreter
                 Consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
                 return new GroupingExpression(expression);
             }
-            throw new Error(ErrorType.SYNTAX, "Expression expected after", Peek());
+            if (Match(TokenType.IDENTIFIER))
+            {
+                //if is not an call to a function
+                return new VariableExpression(Previous());
+            }
+            throw new Error(ErrorType.SYNTAX, "Expression expected.");
         }
 
         private bool Match(params TokenType[] types)

@@ -40,28 +40,13 @@ namespace HULK_Interpreter
     }
     public class LetStatement : Statement
     {
-        public Token Variable { get; }
-        public Expression Initializer { get; }
+        public List<AssignExpression> Assignments { get; }
         public Statement Body { get; }
 
-        public LetStatement(Token variable, Expression initializer, Statement body)
+        public LetStatement(List<AssignExpression> assignments, Statement body)
         {
-            Variable = variable;
-            Initializer = initializer;
+            Assignments = assignments;
             Body = body;
         }
-
-        /*public override object Evaluate()
-        {
-            // Crear un nuevo entorno (scope) para la variable
-            Environment environment = new Environment();
-
-            // Evaluar la expresión inicializadora y asignar el valor a la variable en el entorno
-            object value = Initializer.Evaluate();
-            environment.DefineVariable(Variable.Lexeme, value);
-
-            // Evaluar el cuerpo del let statement en el nuevo entorno
-            return Body.Evaluate(environment);
-        }*/
     }
 }
