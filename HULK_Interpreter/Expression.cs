@@ -69,4 +69,36 @@ namespace HULK_Interpreter
             ID = id;
         }
     }
+    public class PrintStatement : Expression
+    {
+        public Expression Expression { get; }
+        public PrintStatement(Expression expression)
+        {
+            Expression = expression;
+        }
+    }
+    public class IfElseStatement : Expression
+    {
+        public Expression Condition { get; }
+        public Expression ThenBranch { get; }
+        public Expression ElseBranch { get; }
+
+        public IfElseStatement(Expression condition, Expression thenBranch, Expression elseBranch)
+        {
+            Condition = condition;
+            ThenBranch = thenBranch;
+            ElseBranch = elseBranch;
+        }
+    }
+    public class LetInExpression : Expression
+    {
+        public List<AssignExpression> Assignments { get; }
+        public Expression Body { get; }
+
+        public LetInExpression(List<AssignExpression> assignments, Expression body)
+        {
+            Assignments = assignments;
+            Body = body;
+        }
+    }
 }

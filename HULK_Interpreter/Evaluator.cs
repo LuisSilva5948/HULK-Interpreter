@@ -10,41 +10,11 @@ namespace HULK_Interpreter
 {
     internal class Evaluator
     {
-        private Statement AST;
         private Dictionary<string, object> values;
-        public Evaluator(Statement AST)
+        public Evaluator()
         {
-            this.AST = AST;
             values = new Dictionary<string, object>();
         }
-        public object Evaluate(Statement statement)
-        {
-            if (statement is PrintStatement printStatement)
-                return Evaluate(printStatement.Statement);
-            
-            else if (statement is ExpressionStatement expressionStatement)
-                return Evaluate(expressionStatement.Expression);
-            
-            else if (statement is IfStatement ifStatement)
-            {
-                object condition = Evaluate(ifStatement.Condition);
-                if (!IsBoolean(condition))
-                    throw new Error(ErrorType.SEMANTIC, "Condition in 'If-Else' statement must be an boolean expression.");
-                return (bool)condition ? Evaluate(ifStatement.ThenBranch) : Evaluate(ifStatement.ElseBranch);
-            }
-
-            else if (statement is LetStatement letStatement)
-            {
-                foreach (AssignExpression assignment in letStatement.Assignments)
-                {
-                    values[assignment.ID.Lexeme] = Evaluate(assignment.Value);
-                }
-                return Evaluate(letStatement.Body);
-            }
-
-            return null;
-        }
-
         public object Evaluate(Expression expression)
         {
             if (expression is LiteralExpression literal)
@@ -61,6 +31,26 @@ namespace HULK_Interpreter
 
             else if (expression is VariableExpression variable)
                 return EvaluateVariable(variable.ID);
+            
+            else if (expression is PrintStatement printStatement)
+                return Evaluate(printStatement.Expression);
+
+            else if (expression is IfElseStatement ifelseStatement)
+            {
+                object condition = Evaluate(ifelseStatement.Condition);
+                if (!IsBoolean(condition))
+                    throw new Error(ErrorType.SEMANTIC, "Condition in 'If-Else' expression must be an boolean expression.");
+                return (bool)condition ? Evaluate(ifelseStatement.ThenBranch) : Evaluate(ifelseStatement.ElseBranch);
+            }
+
+            else if (expression is LetInExpression letStatement)
+            {
+                foreach (AssignExpression assignment in letStatement.Assignments)
+                {
+                    values[assignment.ID.Lexeme] = Evaluate(assignment.Value);
+                }
+                return Evaluate(letStatement.Body);
+            }
 
             else return null;
         }
