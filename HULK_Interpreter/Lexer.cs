@@ -21,7 +21,7 @@ namespace HULK_Interpreter
             {"true", TokenType.BOOLEAN},
             {"false", TokenType.BOOLEAN},
             {"PI", TokenType.NUMBER},
-            {"e", TokenType.NUMBER},
+            {"E", TokenType.NUMBER},
             {"sen", TokenType.SEN},
             {"cos", TokenType.COS},
             {"log", TokenType.LOG}
@@ -80,7 +80,7 @@ namespace HULK_Interpreter
                 case '<': AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
                 case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '=':
-                    if (Match('>')) AddToken(TokenType.ARROW);
+                    if (Match('>')) AddToken(TokenType.LAMBDA);
                     else AddToken(Match('=') ? TokenType.EQUAL : TokenType.ASSING); break;
                 case '\"': ScanString(); break;
                 //buscar numero, string o devolver error

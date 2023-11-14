@@ -11,6 +11,7 @@ namespace HULK_Interpreter
     internal class Evaluator
     {
         private Dictionary<string, object> values;
+        private Dictionary<string, FunctionDeclaration> DeclaredFunctions { get; set; }
         public Evaluator()
         {
             values = new Dictionary<string, object>();
@@ -50,6 +51,11 @@ namespace HULK_Interpreter
                     values[assignment.ID.Lexeme] = Evaluate(assignment.Value);
                 }
                 return Evaluate(letStatement.Body);
+            }
+
+            else if (expression is FunctionDeclaration declaration)
+            {
+                return $"Function '{declaration.Identifier.Lexeme}' was declared succesfully.";
             }
 
             else return null;

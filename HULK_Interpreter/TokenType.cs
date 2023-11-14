@@ -52,7 +52,7 @@ namespace HULK_Interpreter
         LESS,
         LESS_EQUAL,
         CONCAT,
-        ARROW,
+        LAMBDA,
 
         // End of File
         EOF

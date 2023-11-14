@@ -21,9 +21,11 @@ namespace HULK_Interpreter
         }
         public Expression Parse()
         {
-            Expression expression = Expression();
+            if (Match(TokenType.FUNCTION))
+                return FunctionDeclaration();
+            Expression AST = Expression();
             Consume(TokenType.SEMICOLON, "Expected ';' after expression.");
-            return expression;
+            return AST;
         }
         
         private Expression Expression()
@@ -150,7 +152,7 @@ namespace HULK_Interpreter
             {
                 return LetInExpression();
             }
-            throw new Error(ErrorType.SYNTAX, "Expression expected.");
+            throw new Error(ErrorType.SYNTAX, "Invalid syntax.");
         }
         public Expression PrintStatement()
         {
@@ -171,16 +173,44 @@ namespace HULK_Interpreter
             List<AssignExpression> assignments = new List<AssignExpression>();
             do
             {
-                Token id = Consume(TokenType.IDENTIFIER, "Expected a variable name.");
-                Consume(TokenType.ASSING, "Expected '='.");
-                Expression value = Expression();
-                assignments.Add(new AssignExpression(id, value));
+                Token id = Consume(TokenType.IDENTIFIER, "Expected a variable name in a 'Let-In' expression.");
+                Consume(TokenType.ASSING, $"Expected '=' when initializing variable '{id.Lexeme}'.");
+                try
+                {
+                    Expression value = Expression();
+                    assignments.Add(new AssignExpression(id, value));
+                }
+                catch (Error e)
+                {
+                    throw new Error(ErrorType.SYNTAX, $"Expected value of '{id.Lexeme}' after '='.");
+                }
             }
             while (Match(TokenType.COMMA));
 
             Consume(TokenType.IN, "Expected 'in' at 'Let-In' expression.");
             Expression body = Expression();
             return new LetInExpression(assignments, body);
+        }
+        public Expression FunctionDeclaration()
+        {
+            Token id = Consume(TokenType.IDENTIFIER, "Expected function name.");
+            Consume(TokenType.LEFT_PAREN, "Expected '(' after function name.");
+            List<string> parameters = new List<string>();
+            if (!Check(TokenType.RIGHT_PAREN))
+            {
+                do
+                {
+                    string param = Consume(TokenType.IDENTIFIER, "Expect parameter name.").Lexeme;
+                    if (!parameters.Contains(param))
+                        parameters.Add(param);
+                    else throw new Error(ErrorType.SYNTAX, $"Parameter name '{param}' cannot be used more than once.");
+                }
+                while (Match(TokenType.COMMA));
+            }
+            Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
+            Consume(TokenType.LAMBDA, "Missing '=>' operator in function declaration.");
+            Expression body = Expression();
+            return new FunctionDeclaration(id, parameters, body);
         }
 
         private bool Match(params TokenType[] types)

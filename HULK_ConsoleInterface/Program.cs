@@ -7,6 +7,11 @@ namespace HULK_ConsoleInterface
         static void Main(string[] args)
         {
             Interpreter interpreter = new Interpreter();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("H.U.L.K. Interpreter.");
+            Console.WriteLine();
+
             while (true) 
             {
                 Console.Write(">");
@@ -15,7 +20,12 @@ namespace HULK_ConsoleInterface
                 {
                     interpreter.Run(line);
                 }
-                else Console.WriteLine("No input received.");
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("No input received.");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
             }
         }
     }

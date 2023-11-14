@@ -101,4 +101,27 @@ namespace HULK_Interpreter
             Body = body;
         }
     }
+    public class FunctionDeclaration : Expression
+    {
+        public Token Identifier { get; }
+        public List<string> Parameters { get; }
+        public Expression Body { get; }
+
+        public FunctionDeclaration(Token identifier, List<string> parameters, Expression body)
+        {
+            Identifier = identifier;
+            Parameters = parameters;
+            Body = body;
+        }
+    }
+    public class FunctionCall : Expression
+    {
+        public Token Identifier { get; }
+        public List<Expression> Arguments { get; }
+        public FunctionCall(Token identifier, List<Expression> arguments)
+        {
+            Identifier = identifier;
+            Arguments = arguments;
+        }
+    }
 }

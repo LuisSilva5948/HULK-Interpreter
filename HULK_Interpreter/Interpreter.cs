@@ -8,7 +8,6 @@ namespace HULK_Interpreter
 {
     public class Interpreter
     {
-
         public Interpreter() 
         {
         }
@@ -24,6 +23,7 @@ namespace HULK_Interpreter
                 {
                     Console.WriteLine(token.ToString());
                 }*/
+
                 Parser parser = new Parser(tokens);
                 Expression AST = parser.Parse();
                 Evaluator evaluator = new Evaluator();
@@ -32,11 +32,11 @@ namespace HULK_Interpreter
             }
             catch (Error error)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(error.Report());
+                Console.ForegroundColor = ConsoleColor.Green;
                 return;
             }
-            
-            
         }
     }
 }
