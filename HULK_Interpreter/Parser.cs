@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -133,7 +134,8 @@ namespace HULK_Interpreter
             }
             if (Match(TokenType.IDENTIFIER))
             {
-                //if is not an call to a function
+                if (Memory.DeclaredFunctions.ContainsKey(Previous().Lexeme))
+                    return FunctionCall();
                 return new VariableExpression(Previous());
             }
             if (Match(TokenType.PRINT))
@@ -193,7 +195,7 @@ namespace HULK_Interpreter
         }
         public Expression FunctionDeclaration()
         {
-            Token id = Consume(TokenType.IDENTIFIER, "Expected function name.");
+            string id = Consume(TokenType.IDENTIFIER, "Expected function name.").Lexeme;
             Consume(TokenType.LEFT_PAREN, "Expected '(' after function name.");
             List<string> parameters = new List<string>();
             if (!Check(TokenType.RIGHT_PAREN))
@@ -210,7 +212,29 @@ namespace HULK_Interpreter
             Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
             Consume(TokenType.LAMBDA, "Missing '=>' operator in function declaration.");
             Expression body = Expression();
-            return new FunctionDeclaration(id, parameters, body);
+
+            if (Memory.DeclaredFunctions.ContainsKey(id))
+                throw new Error(ErrorType.SYNTAX, $"Function '{id}' already exists and can't be redefined.");
+            FunctionDeclaration function = new FunctionDeclaration(id, parameters, body);
+            Memory.AddFunction(function);
+            return function;
+        }
+        public Expression FunctionCall()
+        {
+            string id = Previous().Lexeme;
+            FunctionDeclaration function = Memory.DeclaredFunctions[id];
+            Consume(TokenType.LEFT_PAREN, $"Expected '(' after '{id}' call.");
+            List<Expression> arguments = new List<Expression>();
+            if (!Check(TokenType.RIGHT_PAREN))
+            {
+                do
+                {
+                    arguments.Add(Expression());
+                }
+                while (Match(TokenType.COMMA));
+            }
+            Consume(TokenType.RIGHT_PAREN, $"Expected ')' after '{id}' arguments.");
+            return new FunctionCall(id,arguments,function);
         }
 
         private bool Match(params TokenType[] types)

@@ -10,6 +10,7 @@ namespace HULK_Interpreter
     {
         public Interpreter() 
         {
+            Memory.Initialize();
         }
         public void Run(string source)
         {

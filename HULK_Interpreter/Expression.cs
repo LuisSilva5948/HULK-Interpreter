@@ -103,11 +103,11 @@ namespace HULK_Interpreter
     }
     public class FunctionDeclaration : Expression
     {
-        public Token Identifier { get; }
+        public string Identifier { get; }
         public List<string> Parameters { get; }
         public Expression Body { get; }
 
-        public FunctionDeclaration(Token identifier, List<string> parameters, Expression body)
+        public FunctionDeclaration(string identifier, List<string> parameters, Expression body)
         {
             Identifier = identifier;
             Parameters = parameters;
@@ -116,12 +116,14 @@ namespace HULK_Interpreter
     }
     public class FunctionCall : Expression
     {
-        public Token Identifier { get; }
+        public string Identifier { get; }
         public List<Expression> Arguments { get; }
-        public FunctionCall(Token identifier, List<Expression> arguments)
+        public FunctionDeclaration FunctionDeclaration { get; }
+        public FunctionCall(string identifier, List<Expression> arguments, FunctionDeclaration functionDeclaration)
         {
             Identifier = identifier;
             Arguments = arguments;
+            FunctionDeclaration = functionDeclaration;
         }
     }
 }

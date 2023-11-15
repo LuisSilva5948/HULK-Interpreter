@@ -12,15 +12,12 @@ namespace HULK_Interpreter
         // Keywords
         LET,
         IN,
-        PRINT,
-        FUNCTION,
         IF,
         ELSE,
         PI,
         EULER,
-        SEN,
-        COS,
-        LOG,
+        FUNCTION,
+        PRINT,
 
         // Variables
         IDENTIFIER,

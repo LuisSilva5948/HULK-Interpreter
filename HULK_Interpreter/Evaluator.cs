@@ -11,7 +11,6 @@ namespace HULK_Interpreter
     internal class Evaluator
     {
         private Dictionary<string, object> values;
-        private Dictionary<string, FunctionDeclaration> DeclaredFunctions { get; set; }
         public Evaluator()
         {
             values = new Dictionary<string, object>();
@@ -53,9 +52,14 @@ namespace HULK_Interpreter
                 return Evaluate(letStatement.Body);
             }
 
-            else if (expression is FunctionDeclaration declaration)
+            else if (expression is FunctionDeclaration function)
             {
-                return $"Function '{declaration.Identifier.Lexeme}' was declared succesfully.";
+                return $"Function '{function.Identifier}' was declared succesfully.";
+            }
+
+            else if (expression is FunctionCall call)
+            {
+                return EvaluateFunction(call);
             }
 
             else return null;
@@ -137,26 +141,76 @@ namespace HULK_Interpreter
                 return values[name];
             throw new Error(ErrorType.SEMANTIC, $"Value of '{name}' wasn't initialized.");
         }
+        public object EvaluateFunction(FunctionCall call)
+        {
+            List<object> args = new List<object>();
+            foreach (Expression arg in call.Arguments)
+            {
+                args.Add(Evaluate(arg));
+            }
+            switch (call.Identifier)
+            {
+                case "print":
+                    if (args.Count != 1)
+                        FunctionError("log", "args", args.Count, 1);
+                    return args[0];
+                case "sen":
+                    if (args.Count != 1)
+                        FunctionError("log", "args", args.Count, 1);
+                    return Math.Sin((double)args[0]);
+                case "cos":
+                    if (args.Count != 1)
+                        FunctionError("log", "args", args.Count, 1);
+                    return Math.Cos((double)args[0]);
+                case "sqrt":
+                    if (args.Count != 1)
+                        FunctionError("sqrt", "args", args.Count, 1);
+                    return Math.Sqrt((double)args[0]);
+                case "cbrt":
+                    if (args.Count != 1)
+                        FunctionError("cbrt", "args", args.Count, 1);
+                    return Math.Cbrt((double)args[0]);
+                case "log":
+                    if (args.Count != 2)
+                        FunctionError("log", "args", args.Count, 1);
+                    return Math.Log((double)args[0], (double)args[1]);
+                case "log2":
+                    if (args.Count != 1)
+                        FunctionError("log2", "args", args.Count, 1);
+                    return Math.Log2((double)args[0]);
+                case "log10":
+                    if (args.Count != 1)
+                        FunctionError("log10", "args", args.Count, 1);
+                    return Math.Log10((double)args[0]);
+                case "exp":
+                    if (args.Count != 1)
+                        FunctionError("exp", "args", args.Count, 1);
+                    return Math.Exp((double)args[0]);
+                default:
+                    throw new Error(ErrorType.SEMANTIC, "asd");
+            }
+            throw new Error(ErrorType.SEMANTIC, "asd");
+        }
 
         public void CheckBoolean(Token Operator, object right)
         {
             if (IsBoolean(right)) return;
-            throw new Error(ErrorType.SEMANTIC, "Operand must be Boolean", Operator);
+            throw new Error(ErrorType.SEMANTIC, $"Operand must be Boolean in '{Operator.Lexeme}' operation.");
         }
         public void CheckBooleans(Token Operator, object left, object right)
         {
             if (IsBoolean(left, right)) return;
-            throw new Error(ErrorType.SEMANTIC, "Operands must be Boolean", Operator);
+            throw new Error(ErrorType.SEMANTIC, $"Operands must be Boolean in '{Operator.Lexeme}' operation.");
         }
         public void CheckNumber(Token Operator, object right)
         {
             if (IsNumber(right)) return;
-            throw new Error(ErrorType.SEMANTIC, "Operand must be Number", Operator);
+            throw new Error(ErrorType.SEMANTIC, $"Operand must be Number in '{Operator.Lexeme}' operation.");
         }
         public void CheckNumbers(Token Operator, object left, object right)
         {
             if (IsNumber(left, right)) return;
-            throw new Error(ErrorType.SEMANTIC, "Operands must be Numbers", Operator);
+            throw new Error(ErrorType.SEMANTIC, $"Operands must be Numbers in '{Operator.Lexeme}' operation.");
         }
         public bool IsNumber(params object[] operands)
         {
@@ -181,6 +235,16 @@ namespace HULK_Interpreter
             if (left == null && right == null)
                 return true;
             return left == null? false : left.Equals(right);
+        }
+        public void FunctionError(string id, string errortype, int args, int correct)
+        {
+            switch (errortype)
+            {
+                case "args":
+                    throw new Error(ErrorType.SEMANTIC, $"Function '{id}' receives '{args}' argument(s) but instead of the correct amount '{correct}'");
+                default:
+                    throw new Error(ErrorType.SEMANTIC, $"");
+            }
         }
     }
 }

@@ -22,9 +22,6 @@ namespace HULK_Interpreter
             {"false", TokenType.BOOLEAN},
             {"PI", TokenType.NUMBER},
             {"E", TokenType.NUMBER},
-            {"sen", TokenType.SEN},
-            {"cos", TokenType.COS},
-            {"log", TokenType.LOG}
         };
 
         public Lexer(string source)
@@ -130,18 +127,15 @@ namespace HULK_Interpreter
             {
                 case "let": AddToken(TokenType.LET, lexeme); break;
                 case "in": AddToken(TokenType.IN, lexeme); break;
-                case "print": AddToken(TokenType.PRINT, lexeme); break;
-                case "function": AddToken(TokenType.FUNCTION, lexeme); break;
                 case "if": AddToken(TokenType.IF, lexeme); break;
                 case "else": AddToken(TokenType.ELSE, lexeme); break;
+                case "print": AddToken(TokenType.PRINT, lexeme); break;
+                case "function": AddToken(TokenType.FUNCTION, lexeme); break;
                 case "true":
                 case "false":
                     AddToken(TokenType.BOOLEAN, bool.Parse(lexeme)); break;
                 case "PI": AddToken(TokenType.NUMBER, Math.PI); break;
                 case "E": AddToken(TokenType.NUMBER, Math.E); break;
-                case "sen": AddToken(TokenType.SEN, lexeme); break;
-                case "cos": AddToken(TokenType.COS, lexeme); break;
-                case "log": AddToken(TokenType.LOG, lexeme); break;
                 default:
                     if (keywords.ContainsKey(lexeme.ToLower()))
                         throw new Error(ErrorType.LEXICAL, $"Invalid identifier at '{lexeme}'.");
