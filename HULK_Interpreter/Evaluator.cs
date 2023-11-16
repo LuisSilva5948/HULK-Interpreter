@@ -152,44 +152,48 @@ namespace HULK_Interpreter
             {
                 case "print":
                     if (args.Count != 1)
-                        FunctionError("log", "args", args.Count, 1);
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
                     return args[0];
                 case "sen":
                     if (args.Count != 1)
-                        FunctionError("log", "args", args.Count, 1);
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                    if (!IsNumber(args[0]))
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Sin((double)args[0]);
                 case "cos":
                     if (args.Count != 1)
-                        FunctionError("log", "args", args.Count, 1);
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'"); ;
+                    if (!IsNumber(args[0]))
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Cos((double)args[0]);
                 case "sqrt":
                     if (args.Count != 1)
-                        FunctionError("sqrt", "args", args.Count, 1);
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                    if (!IsNumber(args[0]))
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Sqrt((double)args[0]);
                 case "cbrt":
                     if (args.Count != 1)
-                        FunctionError("cbrt", "args", args.Count, 1);
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                    if (!IsNumber(args[0]))
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Cbrt((double)args[0]);
                 case "log":
                     if (args.Count != 2)
-                        FunctionError("log", "args", args.Count, 1);
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                    if (!IsNumber(args[0], args[1]))
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Log((double)args[0], (double)args[1]);
-                case "log2":
-                    if (args.Count != 1)
-                        FunctionError("log2", "args", args.Count, 1);
-                    return Math.Log2((double)args[0]);
-                case "log10":
-                    if (args.Count != 1)
-                        FunctionError("log10", "args", args.Count, 1);
-                    return Math.Log10((double)args[0]);
                 case "exp":
                     if (args.Count != 1)
-                        FunctionError("exp", "args", args.Count, 1);
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                    if (!IsNumber(args[0]))
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Exp((double)args[0]);
                 default:
+                    //funciones definidas por usuario
                     throw new Error(ErrorType.SEMANTIC, "asd");
             }
-            throw new Error(ErrorType.SEMANTIC, "asd");
         }
 
         public void CheckBoolean(Token Operator, object right)
@@ -235,16 +239,6 @@ namespace HULK_Interpreter
             if (left == null && right == null)
                 return true;
             return left == null? false : left.Equals(right);
-        }
-        public void FunctionError(string id, string errortype, int args, int correct)
-        {
-            switch (errortype)
-            {
-                case "args":
-                    throw new Error(ErrorType.SEMANTIC, $"Function '{id}' receives '{args}' argument(s) but instead of the correct amount '{correct}'");
-                default:
-                    throw new Error(ErrorType.SEMANTIC, $"");
-            }
         }
     }
 }
