@@ -104,13 +104,14 @@ namespace HULK_Interpreter
     public class FunctionDeclaration : Expression
     {
         public string Identifier { get; }
-        public List<string> Parameters { get; }
+        public List<VariableExpression> Arguments { get; }
+        //public List<string> Arguments { get; }
         public Expression Body { get; }
 
-        public FunctionDeclaration(string identifier, List<string> parameters, Expression body)
+        public FunctionDeclaration(string identifier, List<VariableExpression> arguments, Expression body)
         {
             Identifier = identifier;
-            Parameters = parameters;
+            Arguments = arguments;
             Body = body;
         }
     }

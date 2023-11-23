@@ -26,7 +26,9 @@ namespace HULK_Interpreter
                 return FunctionDeclaration();
             Expression AST = Expression();
             Consume(TokenType.SEMICOLON, "Expected ';' after expression.");
+            if (IsAtEnd())
             return AST;
+            throw new Error(ErrorType.SYNTAX, "Invalid Syntax.");
         }
         
         private Expression Expression()
@@ -195,7 +197,10 @@ namespace HULK_Interpreter
         }
         public Expression FunctionDeclaration()
         {
-            string id = Consume(TokenType.IDENTIFIER, "Expected function name.").Lexeme;
+            /*string id = Consume(TokenType.IDENTIFIER, "Expected function name.").Lexeme;
+            if (Memory.DeclaredFunctions.ContainsKey(id))
+                throw new Error(ErrorType.SYNTAX, $"Function '{id}' already exists and can't be redefined.");
+            Memory.DeclaredFunctions[id] = null;
             Consume(TokenType.LEFT_PAREN, "Expected '(' after function name.");
             List<string> parameters = new List<string>();
             if (!Check(TokenType.RIGHT_PAREN))
@@ -213,11 +218,48 @@ namespace HULK_Interpreter
             Consume(TokenType.LAMBDA, "Missing '=>' operator in function declaration.");
             Expression body = Expression();
 
-            if (Memory.DeclaredFunctions.ContainsKey(id))
-                throw new Error(ErrorType.SYNTAX, $"Function '{id}' already exists and can't be redefined.");
+            
             FunctionDeclaration function = new FunctionDeclaration(id, parameters, body);
             Memory.AddFunction(function);
-            return function;
+            return function;*/
+
+            string id = Consume(TokenType.IDENTIFIER, "Expected function name.").Lexeme;
+            if (Memory.DeclaredFunctions.ContainsKey(id))
+                throw new Error(ErrorType.SYNTAX, $"Function '{id}' already exists and can't be redefined.");
+            Memory.DeclaredFunctions[id] = null;
+            Consume(TokenType.LEFT_PAREN, "Expected '(' after function name.");
+            List<VariableExpression> arguments = new List<VariableExpression>();
+            if (!Check(TokenType.RIGHT_PAREN))
+            {
+                do
+                {
+                    Expression argument = Expression();
+
+                    if (argument is not VariableExpression variable)
+                        throw new Error(ErrorType.SYNTAX, "Expected valid variable name as an argument in function declaration.");
+                    foreach (VariableExpression arg in arguments)
+                    {
+                        if (arg.ID == variable.ID)
+                            throw new Error(ErrorType.SYNTAX, $"Parameter name '{variable.ID}' cannot be used more than once.");
+                    }
+                    arguments.Add(variable);
+                }
+                while (Match(TokenType.COMMA));
+            }
+            Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
+            Consume(TokenType.LAMBDA, "Missing '=>' operator in function declaration.");
+            try
+            {
+                Expression body = Expression();
+                FunctionDeclaration function = new FunctionDeclaration(id, arguments, body);
+                Memory.AddFunction(function);
+                return function;
+            } 
+            catch(Error e)
+            {
+                Memory.DeclaredFunctions.Remove(id);
+                throw new Error(ErrorType.SYNTAX, $"Invalid declaration of function '{id}'.");
+            }
         }
         public Expression FunctionCall()
         {

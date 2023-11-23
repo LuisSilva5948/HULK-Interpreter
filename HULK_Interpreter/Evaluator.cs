@@ -5,18 +5,54 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 
 namespace HULK_Interpreter
 {
     internal class Evaluator
     {
-        private Dictionary<string, object> values;
+        private Stack<Dictionary<string, object>> Scopes;
+        private readonly int CallLimit = 100000;
+        private int Calls;
+
         public Evaluator()
         {
-            values = new Dictionary<string, object>();
+            Scopes = new Stack<Dictionary<string, object>>();
+            Scopes.Push(new Dictionary<string, object>());
         }
+
+        private void PushScope()
+        {
+            Dictionary<string, object> newScope = new Dictionary<string, object>();
+            foreach (var keyvaluepair in CurrentScope())
+                newScope[keyvaluepair.Key] = keyvaluepair.Value;
+            Scopes.Push(newScope);
+        }
+
+        private void PopScope()
+        {
+            Scopes.Pop();
+        }
+
+        private Dictionary<string, object> CurrentScope()
+        {
+            return this.Scopes.Peek();
+        }
+        
+        /*private Scope Scope;
+        readonly int CallLimit = 1000;
+        private int Calls;
+        public Evaluator()
+        {
+            Scope = new Scope();
+            Calls = 0;
+        }*/
         public object Evaluate(Expression expression)
         {
+            if (Calls > CallLimit)
+                throw new Error(ErrorType.SEMANTIC, "Stack Overflow.");
+            Calls++;
+
             if (expression is LiteralExpression literal)
                 return literal.Value;
 
@@ -31,7 +67,7 @@ namespace HULK_Interpreter
 
             else if (expression is VariableExpression variable)
                 return EvaluateVariable(variable.ID);
-            
+
             else if (expression is PrintStatement printStatement)
                 return Evaluate(printStatement.Expression);
 
@@ -45,11 +81,7 @@ namespace HULK_Interpreter
 
             else if (expression is LetInExpression letStatement)
             {
-                foreach (AssignExpression assignment in letStatement.Assignments)
-                {
-                    values[assignment.ID.Lexeme] = Evaluate(assignment.Value);
-                }
-                return Evaluate(letStatement.Body);
+                return EvaluateLetIn(letStatement);
             }
 
             else if (expression is FunctionDeclaration function)
@@ -137,12 +169,23 @@ namespace HULK_Interpreter
         public object EvaluateVariable(Token id)
         {
             string name = id.Lexeme;
-            if (values.ContainsKey(name))
-                return values[name];
-            throw new Error(ErrorType.SEMANTIC, $"Value of '{name}' wasn't initialized.");
+            return CurrentScope().ContainsKey(name)? CurrentScope()[name] : throw new Error(ErrorType.SEMANTIC, $"Value of {name} wasn't declared.");
+        }
+        public object EvaluateLetIn(LetInExpression letIn)
+        {
+            PushScope();
+            foreach (AssignExpression assign in letIn.Assignments)
+            {
+                object value = Evaluate(assign.Value);
+                CurrentScope()[assign.ID.Lexeme] = value;
+            }
+            object result = Evaluate(letIn.Body);
+            PopScope();
+            return result;
         }
         public object EvaluateFunction(FunctionCall call)
         {
+            //evaluate the arguments
             List<object> args = new List<object>();
             foreach (Expression arg in call.Arguments)
             {
@@ -152,50 +195,63 @@ namespace HULK_Interpreter
             {
                 case "print":
                     if (args.Count != 1)
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args.Count}' argument(s) instead of the correct amount '1'");
                     return args[0];
                 case "sen":
                     if (args.Count != 1)
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args.Count}' argument(s) instead of the correct amount '1'");
                     if (!IsNumber(args[0]))
                         throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Sin((double)args[0]);
                 case "cos":
                     if (args.Count != 1)
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'"); ;
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args.Count}' argument(s) instead of the correct amount '1'"); ;
                     if (!IsNumber(args[0]))
                         throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Cos((double)args[0]);
                 case "sqrt":
                     if (args.Count != 1)
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args.Count}' argument(s) instead of the correct amount '1'");
                     if (!IsNumber(args[0]))
                         throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Sqrt((double)args[0]);
-                case "cbrt":
-                    if (args.Count != 1)
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
-                    if (!IsNumber(args[0]))
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
-                    return Math.Cbrt((double)args[0]);
                 case "log":
                     if (args.Count != 2)
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args.Count}' argument(s) instead of the correct amount '2'");
                     if (!IsNumber(args[0], args[1]))
                         throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Log((double)args[0], (double)args[1]);
                 case "exp":
                     if (args.Count != 1)
-                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args}' argument(s) instead of the correct amount '1'");
+                        throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args.Count}' argument(s) instead of the correct amount '1'");
                     if (!IsNumber(args[0]))
                         throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' can only receives 'Number'.");
                     return Math.Exp((double)args[0]);
                 default:
-                    //funciones definidas por usuario
-                    throw new Error(ErrorType.SEMANTIC, "asd");
+                    //functions declared by the user
+                    if (Memory.DeclaredFunctions.ContainsKey(call.Identifier))
+                    {
+                        FunctionDeclaration function = Memory.DeclaredFunctions[call.Identifier];
+                        //check the amount of arguments of the function vs the arguments passed
+                        if (args.Count != function.Arguments.Count)
+                            throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' receives '{args.Count}' argument(s) instead of the correct amount '{function.Arguments.Count}'");
+                        PushScope();
+                        //bind the argument values to the parameter names in the new scope
+                        for (int i = 0; i < function.Arguments.Count; i++)
+                        {
+                            string parameterName = function.Arguments[i].ID.Lexeme;
+                            object argumentValue = args[i];
+                            CurrentScope()[parameterName] = argumentValue;
+                        }
+                        // Evaluate the body of the function
+                        object result = Evaluate(function.Body);
+                        PopScope();
+                        return result;
+                    }
+                    else throw new Error(ErrorType.SEMANTIC, $"Function '{call.Identifier}' wasn't declared.");
             }
         }
-
+        //checkers
         public void CheckBoolean(Token Operator, object right)
         {
             if (IsBoolean(right)) return;

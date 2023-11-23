@@ -13,9 +13,10 @@ namespace HULK_Interpreter
         {
             DeclaredFunctions = new Dictionary<string, FunctionDeclaration>();
             DeclaredFunctions["sqrt"] = null;
-            DeclaredFunctions["log"] = null;
             DeclaredFunctions["sen"] = null;
             DeclaredFunctions["cos"] = null;
+            DeclaredFunctions["log"] = null;
+            DeclaredFunctions["exp"] = null;
         }
         public static void AddFunction(FunctionDeclaration function)
         {
