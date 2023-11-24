@@ -5,45 +5,48 @@ using System.Text.RegularExpressions;
 
 namespace HULK_Interpreter
 {
+    /// <summary>
+    /// Represents a lexer for tokenizing source code.
+    /// </summary>
     public class Lexer
     {
-        private readonly string source;
-        private List<Token> tokens;
-        private int startofLexeme;
-        private int currentPos;
-        private Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>{
-            {"let", TokenType.LET},
-            {"in", TokenType.IN},
-            {"print", TokenType.PRINT},
-            {"function", TokenType.FUNCTION},
-            {"if", TokenType.IF},
-            {"else", TokenType.ELSE},
-            {"true", TokenType.BOOLEAN},
-            {"false", TokenType.BOOLEAN},
-            {"PI", TokenType.NUMBER},
-            {"E", TokenType.NUMBER},
-        };
+        private readonly string Source;                 // The source code
+        private List<Token> Tokens;                     // The list of Tokens
+        private int StartofLexeme;                      // The start of the current lexeme
+        private int CurrentPosition;                    // The current position in the source code
+        private Dictionary<string, TokenType> Keywords; // Dictionary of keywords and constants
 
         public Lexer(string source)
         {
-            this.source = source;
-            tokens = new List<Token>();
-            startofLexeme = 0;
-            currentPos = 0;
+            Source = source;
+            Tokens = new List<Token>();
+            StartofLexeme = 0;
+            CurrentPosition = 0;
+            Keywords = new Dictionary<string, TokenType>{
+                {"let", TokenType.LET},
+                {"in", TokenType.IN},
+                {"function", TokenType.FUNCTION},
+                {"if", TokenType.IF},
+                {"else", TokenType.ELSE},
+                {"true", TokenType.BOOLEAN},
+                {"false", TokenType.BOOLEAN},
+                {"PI", TokenType.NUMBER},
+                {"E", TokenType.NUMBER} };
         }
 
         /// <summary>
-        /// Scans the source code and generates a list of tokens.
+        /// Scans the source code and generates a list of Tokens.
         /// </summary>
         public List<Token> ScanTokens()
         {
             while (!IsAtEnd())
             {
-                startofLexeme = currentPos;
+                StartofLexeme = CurrentPosition;
                 ScanToken();
             }
-            tokens.Add(new Token(TokenType.EOF, "EOF", null));
-            return tokens;
+            //add end of file token
+            Tokens.Add(new Token(TokenType.EOF, "EOF", null));
+            return Tokens;
         }
         /// <summary>
         /// Scans a single token based on the current character.
@@ -53,13 +56,13 @@ namespace HULK_Interpreter
             char c = Advance();
             switch (c)
             {
-                //ignorar espacios en blanco
+                //ignore whitespace
                 case ' ':
                 case '\r':
                 case '\t':
                 case '\n':
                     break;
-                //buscar tokens de uno o dos caracteres
+                //scan separators and operators
                 case '(': AddToken(TokenType.LEFT_PAREN); break;
                 case ')': AddToken(TokenType.RIGHT_PAREN); break;
                 case ',': AddToken(TokenType.COMMA); break;
@@ -78,9 +81,10 @@ namespace HULK_Interpreter
                 case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
                 case '=':
                     if (Match('>')) AddToken(TokenType.LAMBDA);
-                    else AddToken(Match('=') ? TokenType.EQUAL : TokenType.ASSING); break;
+                    else AddToken(Match('=') ? TokenType.EQUAL : TokenType.ASSIGN); break;
+                //scan strings
                 case '\"': ScanString(); break;
-                //buscar numero, string o devolver error
+                //scan numbers, identifiers and keywords
                 default:
                     if (char.IsDigit(c))
                     {
@@ -129,7 +133,6 @@ namespace HULK_Interpreter
                 case "in": AddToken(TokenType.IN, lexeme); break;
                 case "if": AddToken(TokenType.IF, lexeme); break;
                 case "else": AddToken(TokenType.ELSE, lexeme); break;
-                case "print": AddToken(TokenType.PRINT, lexeme); break;
                 case "function": AddToken(TokenType.FUNCTION, lexeme); break;
                 case "true":
                 case "false":
@@ -137,7 +140,8 @@ namespace HULK_Interpreter
                 case "PI": AddToken(TokenType.NUMBER, Math.PI); break;
                 case "E": AddToken(TokenType.NUMBER, Math.E); break;
                 default:
-                    if (keywords.ContainsKey(lexeme.ToLower()))
+                    //check if identifier is a keyword
+                    if (Keywords.ContainsKey(lexeme.ToLower()))
                         throw new Error(ErrorType.LEXICAL, $"Invalid identifier at '{lexeme}'.");
                     else
                         AddToken(TokenType.IDENTIFIER, lexeme);
@@ -158,66 +162,83 @@ namespace HULK_Interpreter
                 Advance();
             }
             Advance();
-            //ignore ""
+            //remove the quotes from the string literal
             string literal = GetLexeme();
             literal = literal.Substring(1, literal.Length - 2);
             AddToken(TokenType.STRING, literal);
         }
         /// <summary>
-        /// Adds a token with the specified token type to the token list.
+        /// Checks if the current character matches the expected character and advances if it does.
         /// </summary>
-        private void AddToken(TokenType tokentype)
-        {
-            AddToken(tokentype, null);
-        }
-        /// <summary>
-        /// Adds a token with the specified token type and literal value to the token list.
-        /// </summary>
-        private void AddToken(TokenType tokentype, Object literal)
-        {
-            string lexeme = GetLexeme();
-            tokens.Add(new Token(tokentype, lexeme, literal));
-        }
-        /// <summary>
-        /// Checks if the current character matches the expected character.
-        /// </summary>
+        /// <param name="expected">The expected character.</param>
+        /// <returns>True if the current character matches the expected character, false otherwise.</returns>
         private bool Match(char expected)
         {
-            if (IsAtEnd()) return false;
-            if (source[currentPos] != expected) return false;
+            if (IsAtEnd())
+                return false;
+            if (Source[CurrentPosition] != expected)
+                return false;
             Advance();
             return true;
         }
-        /// <summary>
-        /// Returns the current character without advancing to the next character.
-        /// </summary>
-        private char Peek()
-        {
-            if (IsAtEnd()) return '\0';
-            return source[currentPos];
-        }
-        /// <summary>
-        /// Returns true if the lexer has reached the end of the source code.
-        /// </summary>
-        private bool IsAtEnd() 
-        {
-            return currentPos >= source.Length;
-        }
+
         /// <summary>
         /// Returns the current character and advances to the next character.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The current character.</returns>
         private char Advance()
         {
-            return source[currentPos++];
+            CurrentPosition++;
+            return Source[CurrentPosition - 1];
         }
+
         /// <summary>
-        /// Retrieves the lexeme of the token from the source code.
+        /// Returns the current character without advancing to the next character.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The current character.</returns>
+        private char Peek()
+        {
+            if (IsAtEnd())
+                return '\0';
+            return Source[CurrentPosition];
+        }
+
+        /// <summary>
+        /// Adds a token to the list of Tokens.
+        /// </summary>
+        /// <param name="type">The token type.</param>
+        private void AddToken(TokenType type)
+        {
+            AddToken(type, null);
+        }
+
+        /// <summary>
+        /// Adds a token with a literal value to the list of Tokens.
+        /// </summary>
+        /// <param name="type">The token type.</param>
+        /// <param name="literal">The literal value.</param>
+        private void AddToken(TokenType type, object literal)
+        {
+            string lexeme = GetLexeme();
+            Tokens.Add(new Token(type, lexeme, literal));
+        }
+
+        /// <summary>
+        /// Returns the lexeme based on the current position and the start of the lexeme.
+        /// </summary>
+        /// <returns>The lexeme.</returns>
         private string GetLexeme()
         {
-            return source.Substring(startofLexeme, currentPos - startofLexeme);
+            return Source.Substring(StartofLexeme, CurrentPosition - StartofLexeme);
+        }
+
+        /// <summary>
+        /// Checks if the lexer has reached the end of the source code.
+        /// </summary>
+        /// <returns>True if the lexer has reached the end of the source code, false otherwise.</returns>
+        private bool IsAtEnd()
+        {
+            return CurrentPosition >= Source.Length;
         }
     }
 }

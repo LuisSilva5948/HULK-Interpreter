@@ -6,24 +6,33 @@ using System.Threading.Tasks;
 
 namespace HULK_Interpreter
 {
+    /// <summary>
+    /// Represents an error that occurs during the execution of the interpreter.
+    /// </summary>
     public class Error : Exception
     {
-        public string message { get; private set; }
-        public ErrorType errorType { get; private set; }
+        public string Message { get; private set; }         // The error message
+        public ErrorType ErrorType { get; private set; }    // The type of the error
         public Error(ErrorType errorType, string message): base(message)
         {
-            this.errorType = errorType;
-            this.message = message;
+            ErrorType = errorType;
+            Message = message;
         }
+        /// <summary>
+        /// Returns a string representation of the error.
+        /// </summary>
         public string Report()
         {
-            return $"! {errorType} ERROR: {message}";
+            return $"! {ErrorType} ERROR: {Message}";
         }
     }
+    /// <summary>
+    /// Enumerates the types of errors that can occur during the execution of the interpreter.
+    /// </summary>
     public enum ErrorType
     {
-        LEXICAL,
-        SYNTAX,
-        SEMANTIC
+        LEXICAL,    // Lexical errors occur when the lexer encounters an invalid character
+        SYNTAX,     // Syntax errors occur when the parser encounters an invalid token
+        SEMANTIC    // Semantic errors occur when the evaluator encounters an invalid expression
     }
 }

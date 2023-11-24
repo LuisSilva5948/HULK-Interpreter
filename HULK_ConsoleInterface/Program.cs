@@ -11,7 +11,8 @@ namespace HULK_ConsoleInterface
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("H.U.L.K. Interpreter.");
             Console.WriteLine();
-
+            Console.WriteLine("Type a command and press Enter to execute it.");
+            Console.WriteLine();
             while (true) 
             {
                 Console.Write(">");
