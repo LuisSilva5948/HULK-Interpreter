@@ -12,11 +12,17 @@ namespace HULK_ConsoleInterface
             Console.WriteLine("H.U.L.K. Interpreter.");
             Console.WriteLine();
             Console.WriteLine("Type a command and press Enter to execute it.");
+            Console.WriteLine("Type 'EXIT' to finish the program.");
             Console.WriteLine();
             while (true) 
             {
                 Console.Write(">");
                 string line = Console.ReadLine();
+                if (line == "EXIT")
+                {
+                    break;
+                }
+                else
                 if (line != null && line != "")
                 {
                     interpreter.Run(line);
