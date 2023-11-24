@@ -1,7 +1,8 @@
 # H.U.L.K. Interpreter
 
 ![](HULK.jpg)
-![](Logo MatCom.jpg)
+
+![](Logo_MatCom.jpg)
 
 > Proyecto de Programación II.
 > Facultad de Matemática y Computación - Universidad de La Habana.
