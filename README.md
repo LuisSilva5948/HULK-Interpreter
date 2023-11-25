@@ -9,8 +9,7 @@ Interpreter for [H.U.L.K.](https://matcom.in/hulk) (Havana University Language f
 > Havana University.\
 > Luis Daniel Silva Martínez.
 
-![](MatCom.jpg){width=250}
-
+<center><img src="MatCom.jpg" width="200" height="200"></center>
 ## **How to use?**
 Navigate to the project folder and execute HULK_ConsoleInterface with the command:
 ```
