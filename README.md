@@ -4,12 +4,12 @@ Interpreter for [H.U.L.K.](https://matcom.in/hulk) (Havana University Language f
 
 ![](HULK.jpg)
 
->Programming Project II.
->Luis Daniel Silva Martínez
->School of Math and Computer Science
->Havana University
+> Programming Project II.\
+> MatCom - School of Math and Computer Science.\
+> Havana University.\
+> Luis Daniel Silva Martínez.
 
-![](MatCom.jpg)
+![](MatCom.jpg){width=250}
 
 ## **How to use?**
 Navigate to the project folder and execute HULK_ConsoleInterface with the command:
