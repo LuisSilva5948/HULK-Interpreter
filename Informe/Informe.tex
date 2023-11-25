@@ -1,0 +1,108 @@
+\documentclass[12pt,a4paper]{article}
+
+
+\usepackage[left=2.5cm, right=2.5cm, top=3cm, bottom=3cm]{geometry}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{url}
+
+
+\begin{document}
+
+\begin{titlepage}
+	\begin{center}
+		\Huge
+		\textbf{H.U.L.K. Interpreter}
+		\vspace*{1cm}
+		
+		\includegraphics[width=0.75\textwidth]{HULK.jpg}
+		\vspace{1cm}
+		
+		\LARGE
+		\text{Luis Daniel Silva Martínez}
+		
+		
+		\includegraphics[width=0.4\textwidth]{logo matcom.jpg}
+		
+		\Large
+		School of Math and Computer Science\\
+		Havana University
+		
+	\end{center}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+
+\section{Introducción}\label{sec:intro}
+Este proyecto es un intérprete que evalúa instrucciones del lenguaje H.U.L.K. una por una, cada una terminada en punto y coma, las cuales pueden ser expresiones aritméticas, declaraciones de variables, condicionales y funciones definidas por el usuario.
+\subsection{H.U.L.K.}\label{sub:hulk}
+H.U.L.K. (Havana University Language of Kompilers) es un lenguaje de programación imperativo, funcional, estática y fuertemente tipado. Casi todas las instrucciones en H.U.L.K. son expresiones.
+\subsection{Intérprete}\label{sub:interpreter}
+Este proyecto de programación es un interpréte del lenguaje H.U.L.K. en C\texttt{\#} usando tecnología .NET Core 7.0. Tiene una solución que contiene dos proyectos:
+\begin{itemize}
+	\item Una biblioteca de clases (HULK\_Interpreter) donde se implementa toda la lógica de parsing y evaluación del lenguaje H.U.L.K. haciendo uso solamente la biblioteca estándar de .NET Core.
+	\item Una aplicación de consola (HULK\_ConsoleInterpreter) donde se implementa la parte interactiva del intérprete.
+\end{itemize}
+\subsection{¿Cómo usarlo?}\label{sub:use}
+	El uso del intérprete es simple, solo escribir expresiones válidas del lenguaje H.U.L.K. y presionar \texttt{ENTER}, una única instrucción a la vez, y recibirá el resultado de evaluar la expresión. En caso de algún error en las instrucciones enviadas se le notificará sobre el mismo.
+\subsection{¿Cómo ejecutarlo?}\label{sub:execute}
+\subsubsection*{Linux} Se debe ubicar en la carpeta principal del proyecto y ejecutar desde la terminal de Linux el comando:\\
+\texttt{\bf make dev}
+\subsubsection*{Windows} Ejecutar en consola desde la carpeta principal del proyecto el comando:\\
+\texttt{\bf dotnet run --project HULK\_ConsoleInterface}\\
+O abrir la carpeta del HULK\_ConsoleInterface y ejecutar:\\ \texttt{\bf dotnet run} 
+
+
+
+\section{Implementación}\label{sub:impl}
+Este es un ejemplo de una posible interacción:
+	\begin{verbatim}
+		>let x = 42 in print(x);
+		42
+		>function fib(n) => if (n > 1) fib(n-1) + fib(n-2) else 1;
+		Function 'fib' declared succesfully
+		>fib(5);
+		13
+		>let x = 3 in fib(x+1);
+		8
+		>print(fib(6));
+		21
+	\end{verbatim}
+Cada línea que comienza con \texttt{>} representa una entrada del usuario, e inmediatamente después se imprime el resultado de evaluar esa expresión.
+\subsection{Flujo}\label{sub:flow}
+El proyecto sigue un camino marcado:
+\begin{enumerate}
+	\item Instanciación de la clase Interpreter e inicialización de la memoria con las funciones predefinidas.
+	\item Recepción del código introducido por el usuario
+	\item Tokenización del código y validación léxica con la clase Lexer.
+	\item Parseo del código, construcción del árbol de sintaxis abstracta y validación de la sintaxis en la clase Parser.
+	\item Evaluación del árbol de sintaxis abstracta y comprobación semántica en la clase Evaluator.
+	\item Obtención e impresión del resultado.
+	\item Nuevo código.
+\end{enumerate}
+
+\subsection{Class Interpreter}
+La clase \texttt{Interpreter} es la clase principal que maneja todo el proceso del intérprete. Se encarga de coordinar el análisis léxico, el análisis sintáctico y la evaluación del código fuente. Actúa como una interfaz entre estas diferentes etapas y garantiza que el proceso de interpretación se realice de manera ordenada y correcta.
+\subsection{Class Memory}
+La clase \texttt{Memory} simula la memoria del intérprete. Guarda las funciones predefinidas del lenguaje y las definidas por el usuario durante la ejecución del programa.
+\subsection{Class Token}
+La clase \texttt{Token} representa un token individual en el análisis léxico, con su tipo de token definido en el Enum \texttt{TokenType}, su lexema y su valor en caso de tenerlo.
+\subsection{Class Lexer}
+La clase \texttt{Lexer} es responsable de realizar el análisis léxico. Escanea el código fuente y lo convierte en una secuencia de tokens significativos que posteriormente serán utilizados en el proceso de análisis sintáctico.
+\subsection{Class Parser}
+La clase \texttt{Parser} analiza la estructura sintáctica del código fuente, utilizando los tokens generados por el \texttt{Lexer}, y construye una representación estructurada del programa, un árbol de sintaxis abstracta (AST). Utiliza parsing recursivo descendente, concepto basado en la idea de dividir el problema en subproblemas más pequeños y resolverlos de manera recursiva.
+\subsection{Class Evaluator}
+La clase \texttt{Evaluator} es responsable de llevar a cabo la interpretación del código fuente y producir los resultados deseados según las reglas y semántica de nuestro lenguaje.
+\subsection{Class Expression}
+La clase \texttt{Expression} es la clase base de todas las expresiones de nuestro lenguaje H.U.L.K., de la cual heredan \texttt{BinaryExpression}, \texttt{UnaryExpression}, \texttt{LiteralExpression}, y el resto de expresiones, cada una con sus características propias.
+\subsection{Class Error}
+La clase \texttt{Error} hereda de Exception y permite representar y manejar errores léxicos, sintácticos y semánticos durante la ejecución del intérprete.
+
+
+
+\end{document}

@@ -1,10 +1,11 @@
 # H.U.L.K. Interpreter
 
+Interpreter for [H.U.L.K.](https://matcom.in/hulk) (Havana University Language for Kompilers) en C#.
 ![](HULK.jpg)
 
+>Programming Project II.
+Luis Daniel Silva Martínez
+School of Math and Computer Science
+Havana University
+
 ![](Logo_MatCom.jpg)
-
-> Proyecto de Programación II.
-> Facultad de Matemática y Computación - Universidad de La Habana.
-
-Interprete del lenguaje de programación H.U.L.K. (Havana University Language for Kompilers) en C#.
