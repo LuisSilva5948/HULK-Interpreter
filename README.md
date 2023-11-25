@@ -5,7 +5,9 @@
 > Havana University.\
 > Luis Daniel Silva Martínez.
 
-<center><img src="HULK.jpg" width="500" height="500"></center>
+<p align="center">
+<img src="HULK.jpg" width="750" height=750">
+</p>
 
 Interpreter for [H.U.L.K.](https://matcom.in/hulk) (Havana University Language for Kompilers) en C#.
 
